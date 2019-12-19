@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -80,11 +79,10 @@ public class StoryController {
         return ResponseEntity.ok(storyDetailDTO);
     }
 
-    @GetMapping("history")
-    public ResponseEntity<List<Story>> showStoryHistory(@RequestBody StoryUPK storyUPK, Integer page, Integer size){
+    @PostMapping("history")
+    public ResponseEntity<List<Story>> showStoryHistory(@RequestBody StoryUPK storyUPK){
         userService.userAllowed(storyUPK.getProductId());
 
-        //PageRequest pageRequest = PageRequest.of(page, size);
         List<Story> stories = storyService.getStoryHistory(storyUPK);
         return ResponseEntity.ok(stories);
     }
@@ -105,7 +103,7 @@ public class StoryController {
     }
 
     @PostMapping("selectStory")
-    public ResponseEntity searchStory(Integer productId, Long startTime, Long endTime, String origin, String userInput, Integer page, Integer size)  {
+    public ResponseEntity selectStory(Integer productId, Long startTime, Long endTime, String origin, String userInput, Integer page, Integer size)  {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Story> stories = storyService.selectStory(productId, startTime, endTime, origin, userInput, pageRequest);
         return ResponseEntity.ok(stories);

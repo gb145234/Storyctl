@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = UnauthorizedException.class)
     public ResponseEntity<String> unauthorizedHandler(UnauthorizedException e) throws IOException{
-        return ResponseEntity.status(401).body(e.getMessage());
+        return ResponseEntity.status(401).body("没有权限!" + e.getMessage());
     }
 
     @ExceptionHandler(value = CustomerAlreadyExitsException.class)

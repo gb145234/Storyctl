@@ -34,7 +34,11 @@ public interface StoryRepository extends JpaRepository<Story, StoryUPK> {
     @Query(value = "delete from story_edition where product_id = :#{#storyUPK.productId} and story_id = :#{#storyUPK.storyId}", nativeQuery = true)
     Integer deleteEditionByStoryUPK(@Param("storyUPK") StoryUPK storyUPK);
 
-
+    /**
+     * 根据产品id和需求id查找历史版本
+     * @param storyUPK 主键
+     * @return 版本列表
+     */
     @Query(value = "select * from story where product_id = :#{#storyUPK.productId} and story_id = :#{#storyUPK.storyId} order by edition desc ", nativeQuery = true)
     List<Story> findStoriesByStoryUPK(@Param("storyUPK") StoryUPK storyUPK);
 

@@ -28,7 +28,7 @@ public class StoryVO {
 
     private Integer testId;
 
-    private Date testTime;
+    private java.util.Date testTime;
 
     private java.util.Date updateTime;
 

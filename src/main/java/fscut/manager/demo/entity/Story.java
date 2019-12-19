@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 import fscut.manager.demo.entity.UPK.StoryUPK;
 import fscut.manager.demo.enums.StoryStatusEnum;
-import lombok.Data;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -50,7 +49,7 @@ public class Story {
     private Integer testId;
 
     @Column(name = "test_time")
-    private Date testTime;
+    private java.util.Date testTime;
 
     @Column(name = "edit_id", nullable = false)
     private Integer editId;
@@ -145,11 +144,11 @@ public class Story {
         this.testId = testId;
     }
 
-    public Date getTestTime() {
+    public java.util.Date getTestTime() {
         return testTime;
     }
 
-    public void setTestTime(Date testTime) {
+    public void setTestTime(java.util.Date testTime) {
         this.testTime = testTime;
     }
 
@@ -169,22 +168,4 @@ public class Story {
         this.updateTime = updateTime;
     }
 
-    @Override
-    public String toString() {
-        return "Story{" +
-                "storyUPK=" + storyUPK +
-                ", origin='" + origin + '\'' +
-                ", putTime=" + putTime +
-                ", storyName='" + storyName + '\'' +
-                ", storyStatus=" + storyStatus +
-                ", description='" + description + '\'' +
-                ", conclusion='" + conclusion + '\'' +
-                ", designId=" + designId +
-                ", devId=" + devId +
-                ", testId=" + testId +
-                ", testTime=" + testTime +
-                ", editId=" + editId +
-                ", updateTime=" + updateTime +
-                '}';
-    }
 }

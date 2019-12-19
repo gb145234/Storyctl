@@ -53,6 +53,16 @@ public class StoryServiceImplTest {
         Assert.assertNotEquals(0, storyPage.getTotalElements());
     }
 
+    @Test
+    public void testgetStoryHistory() throws Exception {
+        StoryUPK storyUPK = new StoryUPK();
+        storyUPK.setProductId(1);
+        storyUPK.setStoryId(33);
+        List<Story> storyHistory = storyService.getStoryHistory(storyUPK);
+        System.out.println(storyHistory.size());
+        Assert.assertNotEquals(0, storyHistory.size());
+    }
+
     //@Test
     //public void testGetStoryEditionsByProductId() throws Exception {
     //    PageRequest pageRequest = PageRequest.of(0, 10);

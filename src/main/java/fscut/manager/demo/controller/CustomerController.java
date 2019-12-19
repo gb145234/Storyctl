@@ -7,6 +7,7 @@ import fscut.manager.demo.exception.CustomerAlreadyExitsException;
 import fscut.manager.demo.exception.CustomerNotExitsException;
 import fscut.manager.demo.service.CustomerService;
 import fscut.manager.demo.vo.CustomerAuthVO;
+import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class CustomerController {
     @JsonView({Customer.SimpleView.class})
     @GetMapping("customerList")
     @RequiresRoles(value = {"admin","manager"},logical = Logical.OR)
-    public ResponseEntity<List<Customer>> getCustomerList(){
+    public ResponseEntity<List<Customer>> getCustomerList() {
         List<Customer> customerList = customerService.getCustomerList();
         return ResponseEntity.ok(customerList);
     }
