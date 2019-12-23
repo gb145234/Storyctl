@@ -38,41 +38,14 @@ public class AnyRolesAuthFilter extends AuthorizationFilter {
         String[] roles = (String[]) mappedValue;
 
         for (String role: roles
-             ) {
+        ) {
             if(subject.hasRole(role)){
                 return true;
             }
         }
         return false;
-
-//        if(request.getMethod().equals("POST")){
-//            String json = new RequestWrapper(request).getBodyString();
-//            System.out.println(json);
-//            JSONObject jsonObject = JSON.parseObject(json);
-//            String productIdStr = jsonObject.getJSONObject("storyUPK").getString("productId");
-//            Integer productId = Integer.valueOf(productIdStr);
-//            return auth(1, userDto.getUserId(), roles, subject);
-//        }
-//
-//
-//        if(request.getMethod().equals("GET")){
-//            String str = servletRequest.getParameter("productId");
-//            Integer productId = Integer.valueOf(str);
-//            return auth(productId, userDto.getUserId(), roles, subject);
-//        }
-
     }
 
-    private boolean auth(Integer productId, Integer userId, String[] roles, Subject subject){
-        if(userService.isUserAllowed(productId, userId)){
-            for(String role : roles){
-                if(subject.hasRole(role)){
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
     @Override
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws IOException {

@@ -59,7 +59,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackOn = Exception.class)
     public void deleteCustomer(String username) throws CustomerNotExitsException{
         if(customerRepository.findCustomerByUsername(username) == null) {
             throw new CustomerNotExitsException("customer not exits");
@@ -80,6 +80,26 @@ public class CustomerServiceImpl implements CustomerService {
         customerRoleRepository.delete(customerRole);
     }
 
+    @Override
+    public String getUsernameById(Integer userId) {
+        if(userId == null){
+            return null;
+        }
+        return customerRepository.getUsernameById(userId);
+    }
+
+    @Override
+    public String getRealnameById(Integer userId) {
+        if(userId == null){
+            return null;
+        }
+        return customerRepository.findRealNameByCustomerId(userId);
+    }
+
+    @Override
+    public Integer getIdByUsername(String username) {
+        return customerRepository.getIdByUsername(username);
+    }
     @Override
     public List getCustomers() {
         return customerRepository.findIdAndRealName();

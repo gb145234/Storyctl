@@ -9,7 +9,6 @@ import fscut.manager.demo.entity.Story;
 import fscut.manager.demo.entity.StoryEdition;
 import fscut.manager.demo.entity.UPK.StoryUPK;
 import fscut.manager.demo.service.StoryService;
-import fscut.manager.demo.util.TimeStamp2Date;
 import fscut.manager.demo.vo.StoryVO;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -159,12 +158,18 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public List<Story> getStoriesByProductId(Integer productId, Integer customerId) {
+    public Page<Story> getStoriesByProductId(Integer productId, Integer customerId, Pageable pageable) {
         if(customerRepository.findProductIdsByCustomerId(customerId).contains(productId)){
-            return getStoriesByEditions(getStoryEditionsByProductId(productId));
+            List<Story> storyList = getStoriesByEditions(getStoryEditionsByProductId(productId));
+            // 当前页第一条数据在List中的位置
+            int start = (int) pageable.getOffset();
+            // 当前页最后一条数据在List中的位置
+            int end = (start + pageable.getPageSize()) > storyList.size() ? storyList.size() : ( start + pageable.getPageSize());
+            // 配置分页数据
+            return new PageImpl<>(storyList.subList(start, end), pageable, storyList.size());
         }
         else{
-            return new ArrayList<>();
+            return null;
         }
 
 
@@ -249,7 +254,7 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public Page<Story> selectStory(Integer productId, Long startTime, Long endTime, String origin, String input, Pageable pageable) {
+    public Page<Story> selectStory(Integer productId, String startTime, String endTime, String origin, String input, Pageable pageable) {
         List<StoryUPK> storyUPKList = getStoryEditionsByProductId(productId);
         List<Story> storyList = new ArrayList<>();
         Story story;
@@ -259,19 +264,24 @@ public class StoryServiceImpl implements StoryService {
                 storyList.add(story);
             }
         }
-        return new PageImpl<>(storyList, pageable, storyList.size());
+        int fromIndex = pageable.getPageSize() * pageable.getPageNumber();
+        int toIndex = pageable.getPageSize() * (pageable.getPageNumber() + 1);
+        int totalElements = storyList.size();
+        if(toIndex>totalElements) {
+            toIndex = totalElements;
+        }
+        List<Story> indexObjects = storyList.subList(fromIndex,toIndex);
+        return new PageImpl<>(indexObjects, pageable, totalElements);
     }
 
-    private Story selectStory(StoryUPK storyUPK, Long startTime, Long endTime, String origin, String input) {
+    private Story selectStory(StoryUPK storyUPK, String startTime, String endTime, String origin, String input) {
         Specification<Story> predicate = (root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (startTime != null) {
-                String s = TimeStamp2Date.convert(startTime);
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("putTime").as(String.class), s));
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("putTime").as(String.class), startTime));
             }
             if (endTime != null) {
-                String s = TimeStamp2Date.convert(endTime);
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("putTime").as(String.class), s));
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("putTime").as(String.class), endTime));
             }
             if (origin != null) {
                 predicates.add(criteriaBuilder.equal(root.get("origin").as(String.class), origin));

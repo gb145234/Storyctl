@@ -29,9 +29,10 @@ public interface StoryService {
 
     StoryDetailDTO getStoryInfo(StoryUPK storyUPK);
 
-    List<Story> getStoriesByProductId(Integer productId, Integer customerId);
+    Page<Story> getStoriesByProductId(Integer productId, Integer customerId, Pageable pageable);
 
     Story convertStoryVO2Story(StoryVO storyVO);
+
 
     /**
      * 需求名称模糊查询
@@ -63,5 +64,5 @@ public interface StoryService {
      * @param input 用户输入
      * @return 需求分页
      */
-    Page<Story> selectStory(Integer productId, Long startTime, Long endTime, String origin, String input, Pageable pageable);
+    Page<Story> selectStory(Integer productId, String startTime, String endTime, String origin, String input, Pageable pageable);
 }

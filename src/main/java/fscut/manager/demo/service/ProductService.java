@@ -1,6 +1,7 @@
 package fscut.manager.demo.service;
 
 import fscut.manager.demo.entity.Product;
+import fscut.manager.demo.exception.CustomerNoAuthorityException;
 
 import java.util.List;
 

@@ -2,6 +2,7 @@ package fscut.manager.demo.controller;
 
 
 import fscut.manager.demo.entity.Product;
+import fscut.manager.demo.exception.CustomerNoAuthorityException;
 import fscut.manager.demo.service.ProductService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,10 +25,10 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
 
+
     @DeleteMapping("delete")
     public ResponseEntity delete(Integer productId) {
         productService.deleteProduct(productId);
         return ResponseEntity.ok("delete successfully");
     }
-
 }

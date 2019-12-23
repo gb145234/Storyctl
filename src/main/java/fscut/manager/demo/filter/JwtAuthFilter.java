@@ -2,8 +2,8 @@ package fscut.manager.demo.filter;
 
 
 import fscut.manager.demo.dto.UserDto;
-import fscut.manager.demo.util.JWTToken;
-import fscut.manager.demo.util.JwtUtils;
+import fscut.manager.demo.util.token.JWTToken;
+import fscut.manager.demo.util.token.JwtUtils;
 import fscut.manager.demo.service.serviceimpl.UserService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;

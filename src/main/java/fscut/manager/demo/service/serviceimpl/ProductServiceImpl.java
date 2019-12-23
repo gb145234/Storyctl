@@ -2,6 +2,7 @@ package fscut.manager.demo.service.serviceimpl;
 
 import fscut.manager.demo.dao.ProductRepository;
 import fscut.manager.demo.entity.Product;
+import fscut.manager.demo.exception.CustomerNoAuthorityException;
 import fscut.manager.demo.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

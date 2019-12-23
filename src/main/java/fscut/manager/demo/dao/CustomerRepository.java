@@ -32,13 +32,19 @@ public interface CustomerRepository extends JpaRepository<Customer,Integer>{
     @Query("select new fscut.manager.demo.entity.Customer(c.id,c.username,c.password,c.realName,c.productId) from Customer c, CustomerRole cr where cr.customerRoleUPK.productId = :productId and cr.customerRoleUPK.customerId = c.id")
     List<Customer> findCustomersByProductId(@Param("productId") Integer productId);
 
-    @Query(value = "select role_code from customer_role as cr left join role on cr.role_id = role.id where customer_id = ?1", nativeQuery = true)
+    @Query(value = "select DISTINCT role_code from customer_role as cr left join role on cr.role_id = role.id where customer_id = ?1", nativeQuery = true)
     List<String> findRolesByCustomerId(Integer userId);
 
     @Modifying
     @Transactional
     @Query(value = "delete from customer where username = ?1", nativeQuery = true)
     void deleteCustomerByUsername(String username);
+
+    @Query(value = "select realname from customer where id = ?1", nativeQuery = true)
+    String findRealNameByCustomerId(Integer id);
+
+    @Query(value = "select username from customer where id = ?1", nativeQuery = true)
+    String getUsernameById(Integer userId);
 
     /**
      * 查找所有用户的id和真实姓名

@@ -11,6 +11,7 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +30,11 @@ public class LoginController {
     @Autowired
     private UserService userService;
 
+
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @Autowired
     private ProductService productService;
 
@@ -43,6 +49,7 @@ public class LoginController {
             String newToken = userService.generateJwtToken(user.getUsername());
             response.setHeader("token", newToken);
 
+
             return ResponseEntity.ok().build();
         } catch (AuthenticationException e) {
             logger.error("User {} login fail, Reason:{}", loginInfo.getUsername(), e.getMessage());
@@ -54,7 +61,6 @@ public class LoginController {
 
     /**
      * 退出登录
-     *
      */
     @GetMapping(value = "/logout")
     public ResponseEntity<Void> logout() {

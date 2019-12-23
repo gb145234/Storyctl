@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 import fscut.manager.demo.dao.CustomerRepository;
 import fscut.manager.demo.dto.UserDto;
 import fscut.manager.demo.entity.Customer;
-import fscut.manager.demo.util.JwtUtils;
+import fscut.manager.demo.util.token.JwtUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.crypto.hash.Sha256Hash;
@@ -86,23 +86,9 @@ public class UserService {
     	user.setEncryptPwd(new Sha256Hash(customer.getPassword(), encryptSalt).toHex());
     	return user;
     }
-    
-    /**
-     * 获取用户角色列表，强烈建议从缓存中获取
-     * @param userId
-     * @return
-     */
-    //todo
-    @Cacheable(value = "role")
-    public List<String> getUserRoles(Integer userId, List<Integer> productIds){
-        List<String> roles = customerRepository.findRolesByCustomerIdAndProductIds(userId, productIds);
-        for (String str: roles
-             ) {
-            System.out.println(str);
-        }
-        return roles;
-    }
 
+
+    @Cacheable(value = "role")
     public List<String> getUserRoles(Integer userId){
         List<String> roles = customerRepository.findRolesByCustomerId(userId);
         for (String str: roles
@@ -131,5 +117,6 @@ public class UserService {
             throw new UnauthorizedException();
         return null;
     }
+
 
 }

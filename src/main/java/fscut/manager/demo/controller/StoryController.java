@@ -7,9 +7,10 @@ import fscut.manager.demo.entity.Story;
 import fscut.manager.demo.entity.UPK.StoryUPK;
 import fscut.manager.demo.exception.CustomerNoAuthorityException;
 import fscut.manager.demo.service.CustomerService;
-import fscut.manager.demo.service.ProductService;
+import fscut.manager.demo.service.MessageService;
 import fscut.manager.demo.service.StoryService;
 import fscut.manager.demo.service.serviceimpl.UserService;
+import fscut.manager.demo.util.websocket.WebSocketServer;
 import fscut.manager.demo.vo.StoryVO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,10 +37,10 @@ public class StoryController {
     private UserService userService;
 
     @Resource
-    private ProductService productService;
+    private CustomerService customerService;
 
     @Resource
-    private CustomerService customerService;
+    private MessageService messageService;
 
     @PostMapping("newStory")
     public ResponseEntity<Story> newStory(@RequestBody StoryVO storyVO){
@@ -47,6 +49,14 @@ public class StoryController {
         Story story = storyService.convertStoryVO2Story(storyVO);
 
         Optional<Story> optional = storyService.addStory(story);
+        messageService.addMessage(optional.get(),"新建");
+
+        try{
+            WebSocketServer.sendInfo(messageService.getUnreadMessageNum(optional.get().getDesignId()),
+                    customerService.getUsernameById(optional.get().getDesignId()));
+        }catch (Exception e){
+            return null;
+        }
         return ResponseEntity.ok(optional.get());
     }
 
@@ -60,14 +70,15 @@ public class StoryController {
     }
 
     @GetMapping("product/{id}")
-    public ResponseEntity<List<Story>> showProductStories(@PathVariable("id") Integer id) throws CustomerNoAuthorityException {
+    public ResponseEntity<Page<Story>> showProductStories(@PathVariable("id") Integer id, Integer page, Integer size) throws CustomerNoAuthorityException {
         userService.userAllowed(id);
 
         Subject subject = SecurityUtils.getSubject();
         UserDto user = (UserDto) subject.getPrincipal();
-        List<Story> stories = storyService.getStoriesByProductId(id, user.getUserId());
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Story> storyPage = storyService.getStoriesByProductId(id, user.getUserId(), pageRequest);
 
-        return ResponseEntity.ok(stories);
+        return ResponseEntity.ok(storyPage);
     }
 
     @GetMapping("Story")
@@ -103,7 +114,7 @@ public class StoryController {
     }
 
     @PostMapping("selectStory")
-    public ResponseEntity selectStory(Integer productId, Long startTime, Long endTime, String origin, String userInput, Integer page, Integer size)  {
+    public ResponseEntity selectStory(Integer productId, String startTime, String endTime, String origin, String userInput, Integer page, Integer size)  {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Story> stories = storyService.selectStory(productId, startTime, endTime, origin, userInput, pageRequest);
         return ResponseEntity.ok(stories);
@@ -113,6 +124,14 @@ public class StoryController {
     public ResponseEntity<List> getCustomers() {
         List<Customer> customerList = customerService.getCustomers();
         return ResponseEntity.ok(customerList);
+    }
+
+
+    @GetMapping("download")
+    public void download(HttpServletResponse response) {
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition","attachment;file=writeCSV.csv");
+        //CsvUtils.download(storyService.getStoriesByProductId(1,1));
     }
 
 

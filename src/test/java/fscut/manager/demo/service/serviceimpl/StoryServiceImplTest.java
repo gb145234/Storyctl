@@ -44,8 +44,8 @@ public class StoryServiceImplTest {
 
     @Test
     public void testSelectStory() throws Exception {
-        PageRequest pageRequest = PageRequest.of(0, 15);
-        Page<Story> storyPage = storyService.selectStory(1, 1576459382L, 1576718582L, "来源1", "阿", pageRequest);
+        PageRequest pageRequest = PageRequest.of(0, 20);
+        Page<Story> storyPage = storyService.selectStory(1, "2019-12-19", "2019-12-20", null, null, pageRequest);
         System.out.println(storyPage.getTotalElements());
         for (Story story : storyPage) {
             System.out.println(story.toString());

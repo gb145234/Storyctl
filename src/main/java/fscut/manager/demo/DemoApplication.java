@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @EnableTransactionManagement(proxyTargetClass = true)
 @SpringBootApplication
-@ServletComponentScan
 public class DemoApplication {
 
 	public static void main(String[] args) {
