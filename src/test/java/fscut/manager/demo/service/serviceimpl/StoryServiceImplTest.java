@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
@@ -32,14 +31,6 @@ public class StoryServiceImplTest {
     public void testGetStoryByDescriptionLike() {
         List<Story> storyList = storyService.getStoryByDescriptionLike("o");
         Assert.assertNotEquals(0, storyList.size());
-    }
-
-    @Test
-    public void testSearchStory() throws Exception {
-        PageRequest pageRequest = PageRequest.of(0, 3);
-        Page<Story> storyPage = storyService.searchStory("次", pageRequest);
-        System.out.println(storyPage.getTotalElements());
-        Assert.assertNotEquals(0, storyPage.getTotalElements());
     }
 
     @Test

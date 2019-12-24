@@ -49,14 +49,6 @@ public interface StoryService {
     List<Story> getStoryByDescriptionLike(String description);
 
     /**
-     * 用户输入搜索
-     * @param input 用户输入
-     * @param pageable 分页
-     * @return 需求分页
-     */
-    Page<Story> searchStory(String input, Pageable pageable);
-
-    /**
      * 筛选即搜索需求
      * @param startTime 起始时间
      * @param endTime 终止时间

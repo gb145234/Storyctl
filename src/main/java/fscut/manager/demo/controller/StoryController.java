@@ -43,30 +43,43 @@ public class StoryController {
     private MessageService messageService;
 
     @PostMapping("newStory")
-    public ResponseEntity<Story> newStory(@RequestBody StoryVO storyVO){
+    public ResponseEntity newStory(@RequestBody StoryVO storyVO){
         userService.userAllowed(storyVO.getStoryUPK().getProductId());
 
         Story story = storyService.convertStoryVO2Story(storyVO);
 
         Optional<Story> optional = storyService.addStory(story);
-        messageService.addMessage(optional.get(),"新建");
 
-        try{
-            WebSocketServer.sendInfo(messageService.getUnreadMessageNum(optional.get().getDesignId()),
-                    customerService.getUsernameById(optional.get().getDesignId()));
-        }catch (Exception e){
-            return null;
+        Story newStory = null;
+        if (optional.isPresent()) {
+            newStory = optional.get();
         }
-        return ResponseEntity.ok(optional.get());
+        if (newStory == null) {
+            return ResponseEntity.ok("为空！");
+        }
+
+        messageService.addMessage(newStory,"新建");
+
+        WebSocketServer.sendInfo(messageService.getUnreadMessageNum(newStory.getDesignId()),
+                    customerService.getUsernameById(newStory.getDesignId()));
+
+        return ResponseEntity.ok(newStory);
     }
 
     @PostMapping("editStory")
-    public ResponseEntity<Story> editStory(@RequestBody StoryVO storyVO){
+    public ResponseEntity editStory(@RequestBody StoryVO storyVO){
         userService.userAllowed(storyVO.getStoryUPK().getProductId());
 
         Story story = storyService.convertStoryVO2Story(storyVO);
         Optional<Story> optional = storyService.editStory(story);
-        return ResponseEntity.ok(optional.get());
+        Story newStory = null;
+        if (optional.isPresent()) {
+            newStory = optional.get();
+        }
+        if (newStory == null) {
+            return ResponseEntity.ok("为空！");
+        }
+        return ResponseEntity.ok(newStory);
     }
 
     @GetMapping("product/{id}")
@@ -104,13 +117,6 @@ public class StoryController {
 
         storyService.deleteStory(storyUPK);
         return ResponseEntity.ok("Delete successfully!");
-    }
-
-    @GetMapping("searchStory")
-    public ResponseEntity<Page<Story>> searchStory(String input, Integer page, Integer size) {
-        PageRequest pageRequest = PageRequest.of(page, size);
-        Page<Story> searchStoryPage = storyService.searchStory(input, pageRequest);
-        return ResponseEntity.ok(searchStoryPage);
     }
 
     @PostMapping("selectStory")

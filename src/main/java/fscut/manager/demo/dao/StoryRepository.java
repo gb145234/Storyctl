@@ -75,11 +75,9 @@ public interface StoryRepository extends JpaRepository<Story, StoryUPK> {
     Page<Story> findByStoryNameContainingAndDescriptionContaining(String storyName, String description, Pageable pageable);
 
     /**
+     * 动态查询
      * @param specification 动态查询
-     * @param pageable 分页
-     * @return 分页显示需求
+     * @return 需求
      */
-    Page<Story> findAll(Specification<Story> specification, Pageable pageable);
-
     Story findOne(Specification<Story> specification);
 }

@@ -1,6 +1,5 @@
 package fscut.manager.demo.service.serviceimpl;
 
-
 import fscut.manager.demo.dao.CustomerRepository;
 import fscut.manager.demo.dao.MessageRepository;
 import fscut.manager.demo.entity.Message;
@@ -26,15 +25,15 @@ public class MessageServiceImpl implements MessageService {
         if(story == null) {
             return;
         }
-        String content = String.format("%s %s %s 需求",customerRepository.findRealNameByCustomerId(story.getEditId()),action,story.getStoryName());
+        String content = String.format("%s %s %s 需求", customerRepository.findRealNameByCustomerId(story.getEditId()), action, story.getStoryName());
         Message message = new Message();
-        BeanUtils.copyProperties(story,message);
+        BeanUtils.copyProperties(story, message);
         message.setContent(content);
         message = messageRepository.save(message);
         messageRepository.addCustomerMessage(message.getMessageId(), story.getEditId());
-        messageRepository.addCustomerMessage(message.getMessageId(),story.getDesignId());
-        messageRepository.addCustomerMessage(message.getMessageId(),story.getDevId());
-        messageRepository.addCustomerMessage(message.getMessageId(),story.getTestId());
+        messageRepository.addCustomerMessage(message.getMessageId(), story.getDesignId());
+        messageRepository.addCustomerMessage(message.getMessageId(), story.getDevId());
+        messageRepository.addCustomerMessage(message.getMessageId(), story.getTestId());
     }
 
 

@@ -9,6 +9,7 @@ import fscut.manager.demo.entity.Story;
 import fscut.manager.demo.entity.StoryEdition;
 import fscut.manager.demo.entity.UPK.StoryUPK;
 import fscut.manager.demo.service.StoryService;
+import fscut.manager.demo.util.websocket.WebSocketServer;
 import fscut.manager.demo.vo.StoryVO;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -38,6 +39,9 @@ public class StoryServiceImpl implements StoryService {
     @Resource
     private StoryEditionRepository storyEditionRepository;
 
+    @Resource
+    private WebSocketServer webSocketServer;
+
     @Override
     @Transactional(rollbackOn = Exception.class)
     public Optional<Story> addStory(Story story) {
@@ -61,6 +65,8 @@ public class StoryServiceImpl implements StoryService {
         StoryEdition storyEdition = new StoryEdition();
         BeanUtils.copyProperties(story, storyEdition);
         storyEditionRepository.updateEdition(storyEdition);
+
+        //webSocketServer.sendMessage();
 
         return storyRepository.findById(story.getStoryUPK());
     }
@@ -231,26 +237,6 @@ public class StoryServiceImpl implements StoryService {
         }
 
         return storyRepository.findByDescriptionContaining(description);
-    }
-
-    /**
-     * 根据用户输入进行模糊查询
-     * @param input 用户输入
-     * @param pageable 分页
-     * @return 需求
-     */
-    @Override
-    public Page<Story> searchStory(String input, Pageable pageable) {
-        List<Story> storyList = new ArrayList<>();
-        List<Story> storyNameContainingList = storyRepository.findByStoryNameContaining(input);
-        List<Story> storyDescriptionContainingList = storyRepository.findByDescriptionContaining(input);
-        if (!storyNameContainingList.isEmpty()) {
-            storyList.addAll(storyNameContainingList);
-        }
-        if (!storyDescriptionContainingList.isEmpty()) {
-            storyList.addAll(storyDescriptionContainingList);
-        }
-        return new PageImpl<>(storyList, pageable, storyList.size());
     }
 
     @Override
