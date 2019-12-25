@@ -11,6 +11,11 @@ import java.util.List;
 
 public interface MessageRepository extends JpaRepository<Message,Integer> {
 
+    /**
+     * 将消息保存至customer_message表中
+     * @param messageId 消息id
+     * @param customerId 用户id
+     */
     @Modifying
     @Transactional(rollbackOn = Exception.class)
     @Query(value = "insert into customer_message (message_id, customer_id) select ?1,?2 from DUAL where not exists (select customer_id from customer_message where message_id = ?1 and customer_id = ?2)", nativeQuery = true)
@@ -81,6 +86,6 @@ public interface MessageRepository extends JpaRepository<Message,Integer> {
     @Modifying
     @Transactional(rollbackOn = Exception.class)
     @Query(value = "delete from customer_message where message_id = ?1 and customer_id = ?2", nativeQuery = true)
-    void deleteCustomerMessage(Integer messageId, Integer customerId);
+    Integer deleteCustomerMessage(Integer messageId, Integer customerId);
 
 }

@@ -9,7 +9,6 @@ import fscut.manager.demo.entity.Story;
 import fscut.manager.demo.entity.StoryEdition;
 import fscut.manager.demo.entity.UPK.StoryUPK;
 import fscut.manager.demo.service.StoryService;
-import fscut.manager.demo.util.websocket.WebSocketServer;
 import fscut.manager.demo.vo.StoryVO;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -39,9 +38,6 @@ public class StoryServiceImpl implements StoryService {
     @Resource
     private StoryEditionRepository storyEditionRepository;
 
-    @Resource
-    private WebSocketServer webSocketServer;
-
     @Override
     @Transactional(rollbackOn = Exception.class)
     public Optional<Story> addStory(Story story) {
@@ -65,8 +61,6 @@ public class StoryServiceImpl implements StoryService {
         StoryEdition storyEdition = new StoryEdition();
         BeanUtils.copyProperties(story, storyEdition);
         storyEditionRepository.updateEdition(storyEdition);
-
-        //webSocketServer.sendMessage();
 
         return storyRepository.findById(story.getStoryUPK());
     }
@@ -137,11 +131,11 @@ public class StoryServiceImpl implements StoryService {
 
     @Override
     @Transactional(rollbackOn = Exception.class)
-    public void deleteStory(StoryUPK storyUPK) {
+    public Integer deleteStory(StoryUPK storyUPK) {
 
         storyRepository.deleteStories(storyUPK);
 
-        storyRepository.deleteEditionByStoryUPK(storyUPK);
+        return storyRepository.deleteEditionByStoryUPK(storyUPK);
     }
 
     @Override
@@ -167,14 +161,15 @@ public class StoryServiceImpl implements StoryService {
     public Page<Story> getStoriesByProductId(Integer productId, Integer customerId, Pageable pageable) {
         if(customerRepository.findProductIdsByCustomerId(customerId).contains(productId)){
             List<Story> storyList = getStoriesByEditions(getStoryEditionsByProductId(productId));
-            // 当前页第一条数据在List中的位置
-            int start = (int) pageable.getOffset();
-            // 当前页最后一条数据在List中的位置
-            int end = (start + pageable.getPageSize()) > storyList.size() ? storyList.size() : ( start + pageable.getPageSize());
-            // 配置分页数据
-            return new PageImpl<>(storyList.subList(start, end), pageable, storyList.size());
+            int fromIndex = pageable.getPageSize() * pageable.getPageNumber();
+            int toIndex = pageable.getPageSize() * (pageable.getPageNumber() + 1);
+            int totalElements = storyList.size();
+            if(toIndex > totalElements) {
+                toIndex = totalElements;
+            }
+            return new PageImpl<>(storyList.subList(fromIndex, toIndex), pageable, storyList.size());
         }
-        else{
+        else {
             return null;
         }
 
@@ -253,7 +248,7 @@ public class StoryServiceImpl implements StoryService {
         int fromIndex = pageable.getPageSize() * pageable.getPageNumber();
         int toIndex = pageable.getPageSize() * (pageable.getPageNumber() + 1);
         int totalElements = storyList.size();
-        if(toIndex>totalElements) {
+        if(toIndex > totalElements) {
             toIndex = totalElements;
         }
         List<Story> indexObjects = storyList.subList(fromIndex,toIndex);

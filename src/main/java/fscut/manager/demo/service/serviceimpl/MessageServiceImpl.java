@@ -21,13 +21,29 @@ public class MessageServiceImpl implements MessageService {
     private MessageRepository messageRepository;
 
     @Override
-    public void addMessage(Story story, String action) {
+    public void addCreateMessage(Story story) {
         if(story == null) {
             return;
         }
-        String content = String.format("%s %s %s 需求", customerRepository.findRealNameByCustomerId(story.getEditId()), action, story.getStoryName());
+        String content = String.format("%s %s %s 需求", customerRepository.findRealNameByCustomerId(story.getEditId()), "新建了", story.getStoryName());
         Message message = new Message();
         BeanUtils.copyProperties(story, message);
+        message.setContent(content);
+        message = messageRepository.save(message);
+        messageRepository.addCustomerMessage(message.getMessageId(), story.getEditId());
+        messageRepository.addCustomerMessage(message.getMessageId(), story.getDesignId());
+        messageRepository.addCustomerMessage(message.getMessageId(), story.getDevId());
+        messageRepository.addCustomerMessage(message.getMessageId(), story.getTestId());
+    }
+
+    @Override
+    public void addUpdateMessage(Story story) {
+        if (story == null) {
+            return;
+        }
+        Message message = new Message();
+        BeanUtils.copyProperties(story, message);
+        String content = String.format("%s %s %s 需求", customerRepository.findRealNameByCustomerId(story.getEditId()), "修改了", story.getStoryName());
         message.setContent(content);
         message = messageRepository.save(message);
         messageRepository.addCustomerMessage(message.getMessageId(), story.getEditId());
@@ -65,8 +81,8 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void deleteMessage(Integer messageId, Integer customerId) {
-        messageRepository.deleteCustomerMessage(messageId, customerId);
+    public Integer deleteMessage(Integer messageId, Integer customerId) {
+        return messageRepository.deleteCustomerMessage(messageId, customerId);
     }
 
 }

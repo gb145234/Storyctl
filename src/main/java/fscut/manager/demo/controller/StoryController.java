@@ -5,7 +5,6 @@ import fscut.manager.demo.dto.UserDto;
 import fscut.manager.demo.entity.Customer;
 import fscut.manager.demo.entity.Story;
 import fscut.manager.demo.entity.UPK.StoryUPK;
-import fscut.manager.demo.exception.CustomerNoAuthorityException;
 import fscut.manager.demo.service.CustomerService;
 import fscut.manager.demo.service.MessageService;
 import fscut.manager.demo.service.StoryService;
@@ -58,32 +57,59 @@ public class StoryController {
             return ResponseEntity.ok("为空！");
         }
 
-        messageService.addMessage(newStory,"新建");
+        messageService.addCreateMessage(newStory);
 
-        WebSocketServer.sendInfo(messageService.getUnreadMessageNum(newStory.getDesignId()),
-                    customerService.getUsernameById(newStory.getDesignId()));
+        Integer designId = newStory.getDesignId();
+        Integer devId = newStory.getDevId();
+        Integer testId = newStory.getTestId();
+
+        if (designId != null) {
+            WebSocketServer.sendInfo(messageService.getUnreadMessageNum(designId), customerService.getUsernameById(designId));
+        }
+        if (devId != null) {
+            WebSocketServer.sendInfo(messageService.getUnreadMessageNum(devId), customerService.getUsernameById(devId));
+        }
+        if (testId != null) {
+            WebSocketServer.sendInfo(messageService.getUnreadMessageNum(testId), customerService.getUsernameById(testId));
+        }
 
         return ResponseEntity.ok(newStory);
     }
 
     @PostMapping("editStory")
-    public ResponseEntity editStory(@RequestBody StoryVO storyVO){
+    public ResponseEntity editStory(@RequestBody StoryVO storyVO) {
         userService.userAllowed(storyVO.getStoryUPK().getProductId());
 
         Story story = storyService.convertStoryVO2Story(storyVO);
         Optional<Story> optional = storyService.editStory(story);
-        Story newStory = null;
+        Story updatedStory = null;
         if (optional.isPresent()) {
-            newStory = optional.get();
+            updatedStory = optional.get();
         }
-        if (newStory == null) {
+        if (updatedStory == null) {
             return ResponseEntity.ok("为空！");
         }
-        return ResponseEntity.ok(newStory);
+
+        messageService.addUpdateMessage(updatedStory);
+
+        Integer designId = updatedStory.getDesignId();
+        Integer devId = updatedStory.getDevId();
+        Integer testId = updatedStory.getTestId();
+        if (designId != null) {
+            WebSocketServer.sendInfo(messageService.getUnreadMessageNum(designId), customerService.getUsernameById(designId));
+        }
+        if (devId != null) {
+            WebSocketServer.sendInfo(messageService.getUnreadMessageNum(devId), customerService.getUsernameById(devId));
+        }
+        if (testId != null) {
+            WebSocketServer.sendInfo(messageService.getUnreadMessageNum(testId), customerService.getUsernameById(testId));
+        }
+
+        return ResponseEntity.ok(updatedStory);
     }
 
     @GetMapping("product/{id}")
-    public ResponseEntity<Page<Story>> showProductStories(@PathVariable("id") Integer id, Integer page, Integer size) throws CustomerNoAuthorityException {
+    public ResponseEntity<Page<Story>> showProductStories(@PathVariable("id") Integer id, Integer page, Integer size) {
         userService.userAllowed(id);
 
         Subject subject = SecurityUtils.getSubject();
@@ -112,11 +138,11 @@ public class StoryController {
     }
 
     @DeleteMapping("deleteStory")
-    public ResponseEntity<String> deleteStory(@RequestBody StoryUPK storyUPK){
+    public ResponseEntity<Integer> deleteStory(@RequestBody StoryUPK storyUPK){
         userService.userAllowed(storyUPK.getProductId());
 
-        storyService.deleteStory(storyUPK);
-        return ResponseEntity.ok("Delete successfully!");
+        Integer res = storyService.deleteStory(storyUPK);
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping("selectStory")
@@ -137,7 +163,6 @@ public class StoryController {
     public void download(HttpServletResponse response) {
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition","attachment;file=writeCSV.csv");
-        //CsvUtils.download(storyService.getStoriesByProductId(1,1));
     }
 
 

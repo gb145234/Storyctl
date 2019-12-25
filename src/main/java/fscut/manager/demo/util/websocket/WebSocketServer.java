@@ -21,6 +21,7 @@ public class WebSocketServer {
     private static ConcurrentHashMap<String, WebSocketServer> webSocketMap = new ConcurrentHashMap<>();
 
     private Session session;
+
     private String token;
 
     @OnOpen
@@ -31,23 +32,27 @@ public class WebSocketServer {
         if (username != null) {
             webSocketMap.put(username, this);
         }
-        log.info(username + " has login");
+        log.info(username + " has login,有新的连接，总数：{}", webSocketMap.size());
         WebSocketServer.sendInfo(messageService.getUnreadMessageNum(username), username);
     }
 
     @OnClose
     public void onClose() {
-        log.info("exits");
+        String username = JwtUtils.getUsername(token);
+        if (username != null) {
+            webSocketMap.remove(username);
+        }
+        log.info("连接断开，总数：{}", webSocketMap.size());
     }
 
     @OnMessage
     public void onMessage(String message) {
-        // do nothing because of sendMessage
+        log.info("收到客户端发来的消息：{}", message);
     }
 
     @OnError
     public void onError(Throwable error) {
-        log.info(error.getMessage());
+        log.info("错误信息为：{}", error.getMessage());
     }
 
     private void sendMessage(Object message) {
@@ -59,12 +64,12 @@ public class WebSocketServer {
     }
 
     public static void sendInfo(Object message, String username) {
-        log.info(String.valueOf(webSocketMap.get(username)));
+        log.info("向{}发送了消息：{}", username, message);
         webSocketMap.get(username).sendMessage(message);
     }
 
-    public static void sendInfo(Object message) {
-        webSocketMap.forEach((k,v)-> v.sendMessage(message));
-    }
+    //public static void sendInfo(Object message) {
+    //    webSocketMap.forEach((k,v)-> v.sendMessage(message));
+    //}
 
 }

@@ -17,7 +17,7 @@ public interface StoryService {
 
     Optional<Story> editStory(Story story);
 
-    void deleteStory(StoryUPK storyUPK);
+    Integer deleteStory(StoryUPK storyUPK);
 
     List<StoryUPK> getStoryEditionsByProductId(Integer productId);
 

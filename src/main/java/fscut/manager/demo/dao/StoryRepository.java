@@ -27,8 +27,8 @@ public interface StoryRepository extends JpaRepository<Story, StoryUPK> {
 
     /**
      * 根据产品id和需求id删除版本
-     * @param storyUPK
-     * @return
+     * @param storyUPK 主键
+     * @return 删除条数
      */
     @Modifying
     @Query(value = "delete from story_edition where product_id = :#{#storyUPK.productId} and story_id = :#{#storyUPK.storyId}", nativeQuery = true)
@@ -44,7 +44,7 @@ public interface StoryRepository extends JpaRepository<Story, StoryUPK> {
 
     @Modifying
     @Query(value = "delete from story where product_id = :#{#storyUPK.productId} and story_id = :#{#storyUPK.storyId}", nativeQuery = true)
-    void deleteStories(@Param("storyUPK") StoryUPK storyUPK);
+    Integer deleteStories(@Param("storyUPK") StoryUPK storyUPK);
 
     @Query(value = "select * from story where product_id = :#{#storyUPK.productId} and " +
             "story_id = :#{#storyUPK.storyId} and edition = :#{#storyUPK.edition}", nativeQuery = true)
