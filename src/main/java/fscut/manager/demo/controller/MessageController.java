@@ -2,11 +2,10 @@ package fscut.manager.demo.controller;
 
 
 import fscut.manager.demo.dto.UserDto;
-import fscut.manager.demo.entity.CustomerMessage;
 import fscut.manager.demo.entity.Message;
 import fscut.manager.demo.service.CustomerService;
 import fscut.manager.demo.service.MessageService;
-import fscut.manager.demo.util.websocket.WebSocketServer;
+import fscut.manager.demo.vo.MessageVO;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 
@@ -34,35 +33,26 @@ public class MessageController{
      }
 
      @GetMapping("getMessageList")
-     public ResponseEntity<List<Message>> getMessageList() {
+     public ResponseEntity<List<MessageVO>> getMessageList(){
           Subject subject = SecurityUtils.getSubject();
           UserDto user = (UserDto) subject.getPrincipal();
-          List<Message> messageList = messageService.getMessage(user.getUserId());
+          List<MessageVO> messageList = messageService.getMessage(user.getUserId());
           return ResponseEntity.ok(messageList);
      }
 
-     @PostMapping("readMessage")
-     public ResponseEntity<Message> readMessage(@RequestBody CustomerMessage cMessage) {
-          messageService.readMessage(cMessage.getMessageId(), cMessage.getCustomerId());
+     @GetMapping("readMessage")
+     public ResponseEntity<Message> readMessage(Integer messageId, String username) {
+         Integer customerId = customerService.getIdByUsername(username);
+         messageService.readMessage(messageId, customerId);
           return ResponseEntity.ok(null);
      }
 
      @DeleteMapping("deleteMessage")
      public ResponseEntity<Integer> deleteMessage(Integer messageId, String username) {
           Integer customerId = customerService.getIdByUsername(username);
-         Integer res = messageService.deleteMessage(messageId, customerId);
-         return ResponseEntity.ok(res);
+          Integer res = messageService.deleteMessage(messageId, customerId);
+          return ResponseEntity.ok(res);
      }
 
-     @GetMapping("/socket/push")
-     public Object pushToWeb() {
-          Subject subject = SecurityUtils.getSubject();
-          UserDto user = (UserDto) subject.getPrincipal();
-          Integer num = messageService.getUnreadMessageNum(user.getUserId());
-          if(num != 0) {
-              WebSocketServer.sendInfo(messageService.getMessage(user.getUserId()), user.getUsername());
-          }
-          return "good";
-     }
 
 }

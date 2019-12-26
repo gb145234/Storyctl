@@ -22,23 +22,21 @@ public class WebSocketServer {
 
     private Session session;
 
-    private String token;
+    private String username;
 
     @OnOpen
     public void onOpen(Session session, @PathParam("token") String token) {
         this.session = session;
-        this.token = token;
-        String username = JwtUtils.getUsername(token);
+        this.username = JwtUtils.getUsername(token);
         if (username != null) {
             webSocketMap.put(username, this);
         }
         log.info(username + " has login,有新的连接，总数：{}", webSocketMap.size());
-        WebSocketServer.sendInfo(messageService.getUnreadMessageNum(username), username);
+        WebSocketServer.sendInfo("您共有" + messageService.getUnreadMessageNum(username) + "条消息未读", username);
     }
 
     @OnClose
     public void onClose() {
-        String username = JwtUtils.getUsername(token);
         if (username != null) {
             webSocketMap.remove(username);
         }
@@ -64,12 +62,8 @@ public class WebSocketServer {
     }
 
     public static void sendInfo(Object message, String username) {
-        log.info("向{}发送了消息：{}", username, message);
         webSocketMap.get(username).sendMessage(message);
+        log.info("向{}发送了消息：{}", username, message);
     }
-
-    //public static void sendInfo(Object message) {
-    //    webSocketMap.forEach((k,v)-> v.sendMessage(message));
-    //}
 
 }

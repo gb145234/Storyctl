@@ -19,7 +19,7 @@ public interface CustomerRepository extends JpaRepository<Customer,Integer>{
     @Query(value = "select id from customer where username = ?1", nativeQuery = true)
     Integer getIdByUsername(String username);
 
-    Customer findCustomerByUsername(String Username);
+    Customer findCustomerByUsername(String username);
 
     @Query(value = "select role_code from customer as c right join customer_role as cr " +
             "on c.id = cr.customer_id left join role as r " +
@@ -28,6 +28,9 @@ public interface CustomerRepository extends JpaRepository<Customer,Integer>{
 
     @Query(value = "select DISTINCT product_id from customer_role where customer_id = ?1 order by product_id ", nativeQuery = true)
     List<Integer> findProductIdsByCustomerId(Integer customerId);
+
+    @Query(value = "select role_id from customer_role where customer_id = ?1 and product_id = ?2", nativeQuery = true)
+    Integer findRoleByCustomerIdAndProductId(Integer customerId, Integer productId);
 
     @Query("select new fscut.manager.demo.entity.Customer(c.id,c.username,c.password,c.realName,c.productId) from Customer c, CustomerRole cr where cr.customerRoleUPK.productId = :productId and cr.customerRoleUPK.customerId = c.id")
     List<Customer> findCustomersByProductId(@Param("productId") Integer productId);

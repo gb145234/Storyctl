@@ -3,12 +3,14 @@ package fscut.manager.demo.controller;
 import fscut.manager.demo.dto.StoryDetailDTO;
 import fscut.manager.demo.dto.UserDto;
 import fscut.manager.demo.entity.Customer;
+import fscut.manager.demo.entity.Message;
 import fscut.manager.demo.entity.Story;
 import fscut.manager.demo.entity.UPK.StoryUPK;
 import fscut.manager.demo.service.CustomerService;
 import fscut.manager.demo.service.MessageService;
 import fscut.manager.demo.service.StoryService;
 import fscut.manager.demo.service.serviceimpl.UserService;
+import fscut.manager.demo.util.CsvUtils;
 import fscut.manager.demo.util.websocket.WebSocketServer;
 import fscut.manager.demo.vo.StoryVO;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,20 +60,20 @@ public class StoryController {
             return ResponseEntity.ok("为空！");
         }
 
-        messageService.addCreateMessage(newStory);
+        Message message = messageService.addCreateMessage(newStory);
 
         Integer designId = newStory.getDesignId();
         Integer devId = newStory.getDevId();
         Integer testId = newStory.getTestId();
 
         if (designId != null) {
-            WebSocketServer.sendInfo(messageService.getUnreadMessageNum(designId), customerService.getUsernameById(designId));
+            WebSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(designId));
         }
         if (devId != null) {
-            WebSocketServer.sendInfo(messageService.getUnreadMessageNum(devId), customerService.getUsernameById(devId));
+            WebSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(devId));
         }
         if (testId != null) {
-            WebSocketServer.sendInfo(messageService.getUnreadMessageNum(testId), customerService.getUsernameById(testId));
+            WebSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(testId));
         }
 
         return ResponseEntity.ok(newStory);
@@ -90,19 +93,19 @@ public class StoryController {
             return ResponseEntity.ok("为空！");
         }
 
-        messageService.addUpdateMessage(updatedStory);
+        Message message = messageService.addUpdateMessage(updatedStory);
 
         Integer designId = updatedStory.getDesignId();
         Integer devId = updatedStory.getDevId();
         Integer testId = updatedStory.getTestId();
         if (designId != null) {
-            WebSocketServer.sendInfo(messageService.getUnreadMessageNum(designId), customerService.getUsernameById(designId));
+            WebSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(designId));
         }
         if (devId != null) {
-            WebSocketServer.sendInfo(messageService.getUnreadMessageNum(devId), customerService.getUsernameById(devId));
+            WebSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(devId));
         }
         if (testId != null) {
-            WebSocketServer.sendInfo(messageService.getUnreadMessageNum(testId), customerService.getUsernameById(testId));
+            WebSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(testId));
         }
 
         return ResponseEntity.ok(updatedStory);
@@ -160,10 +163,13 @@ public class StoryController {
 
 
     @GetMapping("download")
-    public void download(HttpServletResponse response) {
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition","attachment;file=writeCSV.csv");
+    public ResponseEntity<Void> download(Integer productId,HttpServletResponse response) throws IOException{
+        userService.userAllowed(productId);
+        response.setContentType("application/csv");
+        response.setHeader("Content-Disposition","attachment;filename=writeCSV.csv");
+        Subject subject = SecurityUtils.getSubject();
+        UserDto user = (UserDto) subject.getPrincipal();
+        CsvUtils.download(storyService.getStoriesByProductId(productId, user.getUserId()), response);
+        return ResponseEntity.ok(null);
     }
-
-
 }

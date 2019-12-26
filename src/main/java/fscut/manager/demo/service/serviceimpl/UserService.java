@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 	
-	private static final String encryptSalt = "F12839WhsnnEV$#23b";
+	private static final String ENCRYPTSALT = "F12839WhsnnEV$#23b";
 
     private RedisTemplate<String,String> redisTemplate;
 
@@ -35,7 +35,7 @@ public class UserService {
     /**
      * 保存user登录信息，返回token
      * @param
-     */
+     */ 
     public String generateJwtToken(String username) {
     	String salt = JwtUtils.generateSalt();
 
@@ -82,27 +82,20 @@ public class UserService {
     	user.setRoles(getUserRoles(customer.getId()));
     	user.setUserId(customer.getId());
     	user.setUsername(userName);
-    	user.setProductIds(productIds);
-    	user.setEncryptPwd(new Sha256Hash(customer.getPassword(), encryptSalt).toHex());
+        user.setProductIds(productIds);
+    	user.setEncryptPwd(new Sha256Hash(customer.getPassword(), ENCRYPTSALT).toHex());
     	return user;
     }
 
 
     @Cacheable(value = "role")
     public List<String> getUserRoles(Integer userId){
-        List<String> roles = customerRepository.findRolesByCustomerId(userId);
-        for (String str: roles
-        ) {
-            System.out.println(str);
-        }
-        return roles;
+        return customerRepository.findRolesByCustomerId(userId);
     }
 
+    @Cacheable(value = "role")
     public boolean isUserAllowed(Integer productId, Integer userId){
-        if(customerRepository.findProductIdsByCustomerId(userId).contains(productId)){
-            return true;
-        }
-        return false;
+        return customerRepository.findRoleByCustomerIdAndProductId(userId, productId) != null;
     }
 
     /**

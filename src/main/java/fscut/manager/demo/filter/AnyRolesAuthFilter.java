@@ -1,6 +1,5 @@
 package fscut.manager.demo.filter;
 
-import fscut.manager.demo.service.serviceimpl.UserService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.http.HttpStatus;
 import org.apache.shiro.subject.Subject;
@@ -14,12 +13,6 @@ import java.io.IOException;
 
 public class AnyRolesAuthFilter extends AuthorizationFilter {
 
-
-    private UserService userService;
-
-    public AnyRolesAuthFilter(UserService userService) {
-        this.userService = userService;
-    }
 
     @Override
     protected void postHandle(ServletRequest request, ServletResponse response){

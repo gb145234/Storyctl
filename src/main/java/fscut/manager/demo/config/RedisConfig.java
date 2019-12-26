@@ -18,10 +18,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Configuration
 @EnableCaching
@@ -40,13 +37,12 @@ public class RedisConfig extends CachingConfigurerSupport{
         Map<String, RedisCacheConfiguration> configMap = new HashMap<>();
         configMap.put("role", redisCacheConfiguration.entryTtl(Duration.ofSeconds(43200)));
 
-        RedisCacheManager rcm = RedisCacheManager.builder(redisTemplate.getConnectionFactory())
+        return RedisCacheManager.builder(Objects.requireNonNull(redisTemplate.getConnectionFactory()))
                 .cacheDefaults(redisCacheConfiguration)
                 .transactionAware()
                 .initialCacheNames(cacheNames)
                 .withInitialCacheConfigurations(configMap)
                 .build();
-        return rcm;
     }
 
     @Bean

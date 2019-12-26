@@ -28,6 +28,7 @@ import javax.servlet.Filter;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * shiro配置类
@@ -38,7 +39,7 @@ public class ShiroConfig {
     @Bean
     public FilterRegistrationBean<Filter> filterRegistrationBean(SecurityManager securityManager,UserService userService) throws Exception{
         FilterRegistrationBean<Filter> filterRegistration = new FilterRegistrationBean<Filter>();
-        filterRegistration.setFilter((Filter)shiroFilter(securityManager, userService).getObject());
+        filterRegistration.setFilter((Filter) Objects.requireNonNull(shiroFilter(securityManager, userService).getObject()));
         filterRegistration.addInitParameter("targetFilterLifecycle", "true");
         filterRegistration.setAsyncSupported(true);
         filterRegistration.setEnabled(true);
@@ -83,14 +84,12 @@ public class ShiroConfig {
 
     @Bean("dbRealm")
     public Realm dbShiroRealm(UserService userService) {
-        DbShiroRealm myShiroRealm = new DbShiroRealm(userService);
-        return myShiroRealm;
+        return new DbShiroRealm(userService);
     }
 
     @Bean("jwtRealm")
     public Realm jwtShiroRealm(UserService userService) {
-        JWTShiroRealm myShiroRealm = new JWTShiroRealm(userService);
-        return myShiroRealm;
+        return new JWTShiroRealm(userService);
     }
 
     /**
@@ -102,7 +101,7 @@ public class ShiroConfig {
         factoryBean.setSecurityManager(securityManager);
         Map<String, Filter> filterMap = factoryBean.getFilters();
         filterMap.put("authcToken", createAuthFilter(userService));
-        filterMap.put("anyRole", createAnyRolesAuthFilter(userService));
+        filterMap.put("anyRole", createAnyRolesAuthFilter());
         factoryBean.setFilters(filterMap);
         factoryBean.setFilterChainDefinitionMap(shiroFilterChainDefinition().getFilterChainMap());
 
@@ -128,8 +127,8 @@ public class ShiroConfig {
         return new JwtAuthFilter(userService);
     }
 
-    protected AnyRolesAuthFilter createAnyRolesAuthFilter(UserService userService){
-        return new AnyRolesAuthFilter(userService);
+    protected AnyRolesAuthFilter createAnyRolesAuthFilter(){
+        return new AnyRolesAuthFilter();
     }
 
 }

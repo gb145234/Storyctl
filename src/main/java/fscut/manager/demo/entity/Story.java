@@ -6,16 +6,21 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 import fscut.manager.demo.entity.UPK.StoryUPK;
 import fscut.manager.demo.enums.StoryStatusEnum;
+import lombok.Data;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.io.Serializable;
+import java.sql.Date;
 
 @Entity
 @Table(name = "story")
 @DynamicUpdate
 @JsonInclude(Include.NON_NULL)
-public class Story {
+public class Story implements Serializable {
+
+
+    private static final long serialVersionUID = -5246468425523820009L;
 
     public interface StoryListSimpleView{}
 
@@ -27,7 +32,7 @@ public class Story {
 
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "put_time", nullable = false)
-    private java.sql.Date putTime;
+    private Date putTime;
 
     @Column(name = "story_name", nullable = false)
     private String storyName;
@@ -50,16 +55,16 @@ public class Story {
     @Column(name = "test_id")
     private Integer testId;
 
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "test_time")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date testTime;
 
     @Column(name = "edit_id", nullable = false)
     private Integer editId;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     @Column(name = "update_time", nullable = false)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date updateTime;
+    private java.util.Date updateTime;
 
     public Story() {
     }
@@ -81,12 +86,12 @@ public class Story {
         this.origin = origin;
     }
 
-    public java.sql.Date getPutTime() {
+    public Date getPutTime() {
         return putTime;
     }
 
     @JsonView({Story.StoryListSimpleView.class})
-    public void setPutTime(java.sql.Date putTime) {
+    public void setPutTime(Date putTime) {
         this.putTime = putTime;
     }
 

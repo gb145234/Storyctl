@@ -31,6 +31,8 @@ public interface StoryService {
 
     Page<Story> getStoriesByProductId(Integer productId, Integer customerId, Pageable pageable);
 
+    List<Story> getStoriesByProductId(Integer productId, Integer customerId);
+
     Story convertStoryVO2Story(StoryVO storyVO);
 
 

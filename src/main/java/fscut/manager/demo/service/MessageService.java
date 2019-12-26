@@ -2,6 +2,7 @@ package fscut.manager.demo.service;
 
 import fscut.manager.demo.entity.Message;
 import fscut.manager.demo.entity.Story;
+import fscut.manager.demo.vo.MessageVO;
 
 import java.util.List;
 
@@ -10,13 +11,13 @@ public interface MessageService {
      * 增加需求创建的消息
      * @param story 需求
      */
-    void addCreateMessage(Story story);
+    Message addCreateMessage(Story story);
 
     /**
      * 增加需求修改的消息
      * @param story 需求
      */
-    void addUpdateMessage(Story story);
+    Message addUpdateMessage(Story story);
 
     /**
      * 读消息
@@ -51,12 +52,5 @@ public interface MessageService {
      * @param customerId 用户id
      * @return 消息列表
      */
-    List<Message> getMessage(Integer customerId);
-
-    /**
-     * 根据用户名得到消息列表
-     * @param username 用户名
-     * @return 消息列表
-     */
-    List<Message> getMessage(String username);
+    List<MessageVO> getMessage(Integer customerId);
 }

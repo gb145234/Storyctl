@@ -37,13 +37,13 @@ public class DbShiroRealm extends AuthorizingRealm {
     }
 
 	/**
-	 * //todo 抛出登录失败错误
+	 *
 	 * @param token
 	 * @return
 	 * @throws AuthenticationException
 	 */
 	@Override
-	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) {
 		UsernamePasswordToken userpasswordToken = (UsernamePasswordToken)token;
 		String username = userpasswordToken.getUsername();
 		UserDto user = userService.getUserInfo(username);

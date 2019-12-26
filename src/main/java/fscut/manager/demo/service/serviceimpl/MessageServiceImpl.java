@@ -5,6 +5,7 @@ import fscut.manager.demo.dao.MessageRepository;
 import fscut.manager.demo.entity.Message;
 import fscut.manager.demo.entity.Story;
 import fscut.manager.demo.service.MessageService;
+import fscut.manager.demo.vo.MessageVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +22,9 @@ public class MessageServiceImpl implements MessageService {
     private MessageRepository messageRepository;
 
     @Override
-    public void addCreateMessage(Story story) {
+    public Message addCreateMessage(Story story) {
         if(story == null) {
-            return;
+            return new Message();
         }
         String content = String.format("%s %s %s 需求", customerRepository.findRealNameByCustomerId(story.getEditId()), "新建了", story.getStoryName());
         Message message = new Message();
@@ -34,12 +35,13 @@ public class MessageServiceImpl implements MessageService {
         messageRepository.addCustomerMessage(message.getMessageId(), story.getDesignId());
         messageRepository.addCustomerMessage(message.getMessageId(), story.getDevId());
         messageRepository.addCustomerMessage(message.getMessageId(), story.getTestId());
+        return message;
     }
 
     @Override
-    public void addUpdateMessage(Story story) {
+    public Message addUpdateMessage(Story story) {
         if (story == null) {
-            return;
+            return new Message();
         }
         Message message = new Message();
         BeanUtils.copyProperties(story, message);
@@ -50,19 +52,13 @@ public class MessageServiceImpl implements MessageService {
         messageRepository.addCustomerMessage(message.getMessageId(), story.getDesignId());
         messageRepository.addCustomerMessage(message.getMessageId(), story.getDevId());
         messageRepository.addCustomerMessage(message.getMessageId(), story.getTestId());
+        return message;
     }
 
 
     @Override
-    public List<Message> getMessage(Integer customerId) {
-        List<Integer> messageIds = messageRepository.getMessageId(customerId);
-        return messageRepository.findMessagesByMessageIdIn(messageIds);
-    }
-
-    @Override
-    public List<Message> getMessage(String username) {
-        List<Integer> messageIds = messageRepository.getMessageId(username);
-        return messageRepository.findMessagesByMessageIdIn(messageIds);
+    public List<MessageVO> getMessage(Integer customerId) {
+        return messageRepository.getMessageByCustomerId(customerId);
     }
 
     @Override

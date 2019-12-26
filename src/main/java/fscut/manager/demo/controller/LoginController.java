@@ -25,7 +25,7 @@ import java.util.List;
 @RestController
 public class LoginController {
 
-    private Logger logger = LoggerFactory.getLogger(CustomerController.class);
+    private Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     @Autowired
     private UserService userService;
@@ -74,7 +74,7 @@ public class LoginController {
     }
 
     @GetMapping("list")
-    public ResponseEntity showProductList() {
+    public ResponseEntity<List<Product>> showProductList() {
         List<Product> products = productService.showProductList();
         return ResponseEntity.ok(products);
     }

@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -157,9 +158,16 @@ public class StoryServiceImpl implements StoryService {
         return storyList;
     }
 
+    /**
+     * 用于前端展示产品需求，使用分页实现
+     * @param productId 产品id
+     * @param customerId 用户id
+     * @param pageable 分页
+     * @return 需求分页
+     */
     @Override
     public Page<Story> getStoriesByProductId(Integer productId, Integer customerId, Pageable pageable) {
-        if(customerRepository.findProductIdsByCustomerId(customerId).contains(productId)){
+        if(customerRepository.findRoleByCustomerIdAndProductId(customerId, productId) != null){
             List<Story> storyList = getStoriesByEditions(getStoryEditionsByProductId(productId));
             int fromIndex = pageable.getPageSize() * pageable.getPageNumber();
             int toIndex = pageable.getPageSize() * (pageable.getPageNumber() + 1);
@@ -172,8 +180,20 @@ public class StoryServiceImpl implements StoryService {
         else {
             return null;
         }
+    }
 
-
+    /**
+     * 用于导出需求，不需要分页功能
+     * @param productId 产品id
+     * @param customerId 用户id
+     * @return 需求列表
+     */
+    @Override
+    public List<Story> getStoriesByProductId(Integer productId, Integer customerId) {
+        if(customerRepository.findRoleByCustomerIdAndProductId(customerId, productId) != null) {
+            return getStoriesByEditions(getStoryEditionsByProductId(productId));
+        }
+        return new ArrayList<>();
     }
 
     @Override

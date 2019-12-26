@@ -36,7 +36,7 @@ public class JWTShiroRealm extends AuthorizingRealm {
      * 默认使用此方法进行用户名正确与否验证，错误抛出异常即可。
      */
     @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authcToken) throws AuthenticationException {    
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authcToken) {
         JWTToken jwtToken = (JWTToken) authcToken;
         String token = jwtToken.getToken();
         
@@ -44,9 +44,7 @@ public class JWTShiroRealm extends AuthorizingRealm {
         if(user == null)
             throw new AuthenticationException("token过期，请重新登录");
 
-        SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(user, user.getSalt(), "jwtRealm");
-
-        return authenticationInfo;
+        return new SimpleAuthenticationInfo(user, user.getSalt(), "jwtRealm");
     }
 
     @Override
