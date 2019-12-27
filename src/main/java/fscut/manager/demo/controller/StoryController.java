@@ -13,16 +13,21 @@ import fscut.manager.demo.service.serviceimpl.UserService;
 import fscut.manager.demo.util.CsvUtils;
 import fscut.manager.demo.util.websocket.WebSocketServer;
 import fscut.manager.demo.vo.StoryVO;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.io.File;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +48,9 @@ public class StoryController {
 
     @Resource
     private MessageService messageService;
+
+    @Resource
+    private WebSocketServer webSocketServer;
 
     @PostMapping("newStory")
     public ResponseEntity newStory(@RequestBody StoryVO storyVO){
@@ -117,7 +125,7 @@ public class StoryController {
 
         Subject subject = SecurityUtils.getSubject();
         UserDto user = (UserDto) subject.getPrincipal();
-        PageRequest pageRequest = PageRequest.of(page, size);
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.DESC, "putTime");
         Page<Story> storyPage = storyService.getStoriesByProductId(id, user.getUserId(), pageRequest);
 
         return ResponseEntity.ok(storyPage);
@@ -150,7 +158,7 @@ public class StoryController {
 
     @PostMapping("selectStory")
     public ResponseEntity selectStory(Integer productId, String startTime, String endTime, String origin, String userInput, Integer page, Integer size)  {
-        PageRequest pageRequest = PageRequest.of(page, size);
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.DESC, "putTime");
         Page<Story> stories = storyService.selectStory(productId, startTime, endTime, origin, userInput, pageRequest);
         return ResponseEntity.ok(stories);
     }
@@ -163,13 +171,27 @@ public class StoryController {
 
 
     @GetMapping("download")
-    public ResponseEntity<Void> download(Integer productId,HttpServletResponse response) throws IOException{
+    public ResponseEntity<FileSystemResource> download(Integer productId, HttpServletResponse response) {
         userService.userAllowed(productId);
-        response.setContentType("application/csv");
+        //response.setContentType("application/csv");
         response.setHeader("Content-Disposition","attachment;filename=writeCSV.csv");
         Subject subject = SecurityUtils.getSubject();
         UserDto user = (UserDto) subject.getPrincipal();
-        CsvUtils.download(storyService.getStoriesByProductId(productId, user.getUserId()), response);
-        return ResponseEntity.ok(null);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Content-Disposition", "attachment; filename=" + "writeCSV.csv");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+        headers.add("Last-Modified", new Date().toString());
+        headers.add("ETag", String.valueOf(System.currentTimeMillis()));
+
+        File file = new File("D:\\writeCSV.csv");
+        if (file == null) {
+            return null;
+        }
+        return ResponseEntity.ok().headers(headers).contentLength(file.length()).
+                contentType(MediaType.parseMediaType("application/octet-stream")).
+                body(new FileSystemResource(file));
     }
+
 }

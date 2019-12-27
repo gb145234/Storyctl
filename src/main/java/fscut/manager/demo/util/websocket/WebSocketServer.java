@@ -18,7 +18,7 @@ public class WebSocketServer {
 
     public static MessageService messageService;
 
-    private static ConcurrentHashMap<String, WebSocketServer> webSocketMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, WebSocketServer> webSocketMap = new ConcurrentHashMap<>();
 
     private Session session;
 
@@ -32,7 +32,6 @@ public class WebSocketServer {
             webSocketMap.put(username, this);
         }
         log.info(username + " has login,有新的连接，总数：{}", webSocketMap.size());
-        WebSocketServer.sendInfo("您共有" + messageService.getUnreadMessageNum(username) + "条消息未读", username);
     }
 
     @OnClose
@@ -57,11 +56,12 @@ public class WebSocketServer {
         try {
             this.session.getBasicRemote().sendObject(message);
         } catch (IOException | EncodeException e) {
-            log.info(e.getMessage());
+            log.info("错误信息为：{}", e.getMessage());
         }
     }
 
     public static void sendInfo(Object message, String username) {
+        System.out.println(username);
         webSocketMap.get(username).sendMessage(message);
         log.info("向{}发送了消息：{}", username, message);
     }

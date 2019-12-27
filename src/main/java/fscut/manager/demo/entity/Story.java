@@ -19,7 +19,6 @@ import java.sql.Date;
 @JsonInclude(Include.NON_NULL)
 public class Story implements Serializable {
 
-
     private static final long serialVersionUID = -5246468425523820009L;
 
     public interface StoryListSimpleView{}
