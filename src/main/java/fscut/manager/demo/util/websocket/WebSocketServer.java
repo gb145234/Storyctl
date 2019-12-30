@@ -28,17 +28,13 @@ public class WebSocketServer {
     public void onOpen(Session session, @PathParam("token") String token) {
         this.session = session;
         this.username = JwtUtils.getUsername(token);
-        if (username != null) {
-            webSocketMap.put(username, this);
-        }
+        webSocketMap.put(username, this);
         log.info(username + " has login,有新的连接，总数：{}", webSocketMap.size());
     }
 
     @OnClose
     public void onClose() {
-        if (username != null) {
-            webSocketMap.remove(username);
-        }
+        webSocketMap.remove(username);
         log.info("连接断开，总数：{}", webSocketMap.size());
     }
 

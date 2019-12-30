@@ -41,6 +41,15 @@ public interface MessageRepository extends JpaRepository<Message,Integer> {
     void readMessage(Integer messageId, Integer customerId);
 
     /**
+     * 读取某个用户所有未读消息
+     * @param customerId 用户id
+     */
+    @Modifying
+    @Transactional(rollbackOn = Exception.class)
+    @Query(value = "update customer_message set checked = 1 where customer_id = ?1", nativeQuery = true)
+    void readAll(Integer customerId);
+
+    /**
      * 根据用户id查找未读消息条数
      * @param customerId 用户id
      * @return 未读信息条数
@@ -67,4 +76,13 @@ public interface MessageRepository extends JpaRepository<Message,Integer> {
     @Query(value = "delete from customer_message where message_id = ?1 and customer_id = ?2", nativeQuery = true)
     Integer deleteCustomerMessage(Integer messageId, Integer customerId);
 
+    /**
+     * 删除某个用户所有消息
+     * @param customerId 用户
+     * @return 返回删除条数
+     */
+    @Modifying
+    @Transactional(rollbackOn = Exception.class)
+    @Query(value = "delete from customer_message where customer_id = ?1", nativeQuery = true)
+    Integer deleteAll(Integer customerId);
 }

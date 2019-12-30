@@ -176,9 +176,8 @@ public class StoryServiceImpl implements StoryService {
             }
             return new PageImpl<>(storyList.subList(fromIndex, toIndex), pageable, storyList.size());
         }
-        else {
-            return null;
-        }
+
+        return null;
     }
 
     /**

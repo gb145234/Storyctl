@@ -29,8 +29,8 @@ import java.util.regex.Pattern;
 public class CsvUtils {
 
     private static final String NEW_LINE_SEPARATOR = "\n";
-    private static final String FILE_NAME = "writeCSV.csv";
-    private static final String PATH = "D:\\" + FILE_NAME;
+    private static final String FILE_NAME = "writeXLS.xls";
+    private static final String PATH = "D:/" + FILE_NAME;
 
     @Resource
     private CustomerService customerService;
@@ -56,7 +56,7 @@ public class CsvUtils {
         }
         printer.flush();
         printer.close();
-        log.info("CSV文件创建成功，文件路径：" + PATH);
+        log.info("xls文件创建成功，文件路径：" + PATH);
     }
 
     private static void storyToCsv(List<StoryCsvVO> data) {
@@ -180,7 +180,7 @@ public class CsvUtils {
         }
         HttpHeaders headers = new HttpHeaders();
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Content-Disposition", "attachment; filename=" + "writeCSV.csv");
+        headers.add("Content-Disposition", "attachment; filename=" + "writeXLS.xls");
         headers.add("Pragma", "no-cache");
         headers.add("Expires", "0");
         headers.add("Last-Modified", new Date().toString());

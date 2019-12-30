@@ -27,6 +27,12 @@ public interface MessageService {
     void readMessage(Integer messageId, Integer customerId);
 
     /**
+     * 读取用户所有未读消息
+     * @param customerId
+     */
+    void readAll(Integer customerId);
+
+    /**
      * 根据用户id获得未读消息数量
      * @param customerId 用户id
      * @return 未读消息数量
@@ -53,4 +59,11 @@ public interface MessageService {
      * @return 消息列表
      */
     List<MessageVO> getMessage(Integer customerId);
+
+    /**
+     * 删除某用户所有消息
+     * @param customerId 用户id
+     * @return 删除条数
+     */
+    Integer deleteAll(Integer customerId);
 }

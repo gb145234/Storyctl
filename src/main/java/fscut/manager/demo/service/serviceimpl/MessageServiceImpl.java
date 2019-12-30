@@ -62,8 +62,18 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    public Integer deleteAll(Integer customerId) {
+        return messageRepository.deleteAll(customerId);
+    }
+
+    @Override
     public void readMessage(Integer messageId, Integer customerId) {
         messageRepository.readMessage(messageId, customerId);
+    }
+
+    @Override
+    public void readAll(Integer customerId) {
+        messageRepository.readAll(customerId);
     }
 
     @Override

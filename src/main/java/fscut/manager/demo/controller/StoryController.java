@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -125,7 +127,7 @@ public class StoryController {
 
         Subject subject = SecurityUtils.getSubject();
         UserDto user = (UserDto) subject.getPrincipal();
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.DESC, "putTime");
+        PageRequest pageRequest = PageRequest.of(page, size);
         Page<Story> storyPage = storyService.getStoriesByProductId(id, user.getUserId(), pageRequest);
 
         return ResponseEntity.ok(storyPage);
@@ -157,9 +159,22 @@ public class StoryController {
     }
 
     @PostMapping("selectStory")
-    public ResponseEntity selectStory(Integer productId, String startTime, String endTime, String origin, String userInput, Integer page, Integer size)  {
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.DESC, "putTime");
+    public ResponseEntity<Page<Story>> selectStory(Integer productId, String startTime, String endTime, String origin, String userInput, Integer page, Integer size, String sortByPutTime) {
+        Sort.Direction sort = Sort.Direction.DESC;
+        String desc = "descending";
+        String asc = "ascending";
+        if (desc.equals(sortByPutTime)) {
+            sort = Sort.Direction.DESC;
+        }
+        else if (asc.equals(sortByPutTime)) {
+            sort = Sort.Direction.ASC;
+        }
+        PageRequest pageRequest = PageRequest.of(page, size, sort, "putTime");
         Page<Story> stories = storyService.selectStory(productId, startTime, endTime, origin, userInput, pageRequest);
+        System.out.println(pageRequest.getSort());
+        for (Story story : stories) {
+            System.out.println(story.toString());
+        }
         return ResponseEntity.ok(stories);
     }
 
@@ -171,24 +186,27 @@ public class StoryController {
 
 
     @GetMapping("download")
-    public ResponseEntity<FileSystemResource> download(Integer productId, HttpServletResponse response) {
+    public ResponseEntity<FileSystemResource> download(Integer productId, HttpServletResponse response) throws UnsupportedEncodingException {
         userService.userAllowed(productId);
         //response.setContentType("application/csv");
-        response.setHeader("Content-Disposition","attachment;filename=writeCSV.csv");
+        //response.setHeader("Content-Disposition","attachment;filename=writeCSV.csv");
         Subject subject = SecurityUtils.getSubject();
         UserDto user = (UserDto) subject.getPrincipal();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Content-Disposition", "attachment; filename=" + "writeCSV.csv");
+        headers.add("Content-Disposition", "attachment; filename=" + URLEncoder.encode("writeXLS.xls", "UTF-8"));
         headers.add("Pragma", "no-cache");
         headers.add("Expires", "0");
         headers.add("Last-Modified", new Date().toString());
         headers.add("ETag", String.valueOf(System.currentTimeMillis()));
 
-        File file = new File("D:\\writeCSV.csv");
-        if (file == null) {
-            return null;
+        List<Story> storiesByProductId = storyService.getStoriesByProductId(productId, user.getUserId());
+        for (Story story : storiesByProductId) {
+            System.out.println(storiesByProductId.size());
+            System.out.println(story.toString());
         }
+        //CsvUtils.download(storyService.getStoriesByProductId(productId, user.getUserId()), response);
+        File file = new File("D:\\writeXLS.xls");
         return ResponseEntity.ok().headers(headers).contentLength(file.length()).
                 contentType(MediaType.parseMediaType("application/octet-stream")).
                 body(new FileSystemResource(file));

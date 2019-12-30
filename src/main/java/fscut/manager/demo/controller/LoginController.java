@@ -52,6 +52,7 @@ public class LoginController {
             String newToken = userService.generateJwtToken(user.getUsername());
             response.setHeader("token", newToken);
 
+            System.out.println(user.getUsername());
             WebSocketServer.sendInfo("您共有" + messageService.getUnreadMessageNum(user.getUsername()) + "条消息未读", user.getUsername());
             return ResponseEntity.ok().build();
         } catch (AuthenticationException e) {

@@ -47,10 +47,24 @@ public class MessageController{
           return ResponseEntity.ok(null);
      }
 
+     @GetMapping("readAll")
+     public ResponseEntity<Message> readAll(String username) {
+          Integer customerId = customerService.getIdByUsername(username);
+          messageService.readAll(customerId);
+          return ResponseEntity.ok(null);
+     }
+
      @DeleteMapping("deleteMessage")
      public ResponseEntity<Integer> deleteMessage(Integer messageId, String username) {
           Integer customerId = customerService.getIdByUsername(username);
           Integer res = messageService.deleteMessage(messageId, customerId);
+          return ResponseEntity.ok(res);
+     }
+
+     @DeleteMapping("deleteAll")
+     public ResponseEntity<Integer> deleteMessage(String username) {
+          Integer customerId = customerService.getIdByUsername(username);
+          Integer res = messageService.deleteAll(customerId);
           return ResponseEntity.ok(res);
      }
 

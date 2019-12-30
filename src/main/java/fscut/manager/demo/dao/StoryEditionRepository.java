@@ -17,7 +17,7 @@ import java.util.List;
 @Repository
 public interface StoryEditionRepository extends JpaRepository<StoryEdition, StoryUPK> {
 
-    @Query("select new fscut.manager.demo.entity.UPK.StoryUPK(s.storyUPK.productId, s.storyUPK.storyId, s.storyUPK.edition) from StoryEdition s where s.storyUPK.productId = :productId order by s.storyUPK.storyId desc ")
+    @Query("select new fscut.manager.demo.entity.UPK.StoryUPK(s.storyUPK.productId, s.storyUPK.storyId, s.storyUPK.edition) from StoryEdition s where s.storyUPK.productId = :productId") // order by s.storyUPK.storyId desc
     List<StoryUPK> findStoryEditionsByProductId(@Param("productId") Integer productId);
 
     @Modifying

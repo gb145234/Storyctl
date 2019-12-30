@@ -54,6 +54,12 @@ public class StoryServiceImplTest {
         Assert.assertNotEquals(0, storyHistory.size());
     }
 
+    @Test
+    public void testGetStoriesByProductId() throws Exception {
+        List<Story> storyList = storyService.getStoriesByProductId(1, 1);
+        Assert.assertNotEquals(0, storyList.size());
+    }
+
     //@Test
     //public void testGetStoryEditionsByProductId() throws Exception {
     //    PageRequest pageRequest = PageRequest.of(0, 10);

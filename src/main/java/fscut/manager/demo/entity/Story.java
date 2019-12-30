@@ -31,7 +31,7 @@ public class Story implements Serializable {
 
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "put_time", nullable = false)
-    private Date putTime;
+    private java.util.Date putTime;
 
     @Column(name = "story_name", nullable = false)
     private String storyName;
@@ -85,12 +85,12 @@ public class Story implements Serializable {
         this.origin = origin;
     }
 
-    public Date getPutTime() {
+    public  java.util.Date getPutTime() {
         return putTime;
     }
 
-    @JsonView({Story.StoryListSimpleView.class})
-    public void setPutTime(Date putTime) {
+    //@JsonView({Story.StoryListSimpleView.class})
+    public void setPutTime(java.util.Date putTime) {
         this.putTime = putTime;
     }
 
