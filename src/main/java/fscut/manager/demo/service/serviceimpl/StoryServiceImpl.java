@@ -1,14 +1,18 @@
 package fscut.manager.demo.service.serviceimpl;
 
 import fscut.manager.demo.dao.CustomerRepository;
+import fscut.manager.demo.dao.StoryDetailRepository;
 import fscut.manager.demo.dao.StoryEditionRepository;
 import fscut.manager.demo.dao.StoryRepository;
 import fscut.manager.demo.dto.StoryDetailDTO;
 import fscut.manager.demo.dto.UserDto;
 import fscut.manager.demo.entity.Story;
+import fscut.manager.demo.entity.StoryDetail;
 import fscut.manager.demo.entity.StoryEdition;
 import fscut.manager.demo.entity.UPK.StoryUPK;
+import fscut.manager.demo.enums.StoryStatusEnum;
 import fscut.manager.demo.service.StoryService;
+import fscut.manager.demo.vo.StoryDetailVO;
 import fscut.manager.demo.vo.StoryVO;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -20,9 +24,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +43,9 @@ public class StoryServiceImpl implements StoryService {
 
     @Resource
     private StoryEditionRepository storyEditionRepository;
+
+    @Resource
+    private StoryDetailRepository storyDetailRepository;
 
     @Override
     @Transactional(rollbackOn = Exception.class)
@@ -53,10 +62,13 @@ public class StoryServiceImpl implements StoryService {
     @Override
     @Transactional(rollbackOn = Exception.class)
     public Optional<Story> editStory(Story story) {
+        Story lastStory = storyRepository.findStoryByEdition(story.getStoryUPK());
 
         int edition = story.getStoryUPK().getEdition() + 1;
         story.getStoryUPK().setEdition(edition);
-        storyRepository.save(story);
+        story = storyRepository.save(story);
+
+        getDifferenceBetween2Stories(story, lastStory);
 
         StoryEdition storyEdition = new StoryEdition();
         BeanUtils.copyProperties(story, storyEdition);
@@ -66,53 +78,161 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public StoryDetailDTO getStoryInfo(StoryUPK storyUPK) {
-        List<Story> storyList = getStoryHistory(storyUPK);
-        StoryDetailDTO storyDetailDTO = new StoryDetailDTO();
-        Optional<Story> story = storyRepository.findById(storyUPK);
-        if (story.isPresent()) {
-            storyDetailDTO.setStory(story.get());
+    public StoryDetailVO getStoryInfo(StoryUPK storyUPK) {
+        Integer productId = storyUPK.getProductId();
+        Integer storyId = storyUPK.getStoryId();
+
+        StoryUPK newStoryUPK = storyEditionRepository.findStoryEditionsByProductIdAndStoryId(productId,storyId).get(0);
+
+        List<StoryDetail> storyDetails = storyDetailRepository.getStoryDetailsByProductIdAndStoryId(productId, storyId);
+        if(storyDetails == null){
+            Optional<Story> story = storyRepository.findById(newStoryUPK);
+            StoryDetailVO result = new StoryDetailVO();
+            result.setStory(story.get());
+            return result;
         }
 
-        for (int i = 0; i < storyList.size() - 1; i++) {
-            Story tmp = getDifferenceBetween2Stories(storyList.get(i), storyList.get(i + 1));
-            storyDetailDTO.getStoryList().add(tmp);
+        StoryDetail[] storyDetailsArray = new StoryDetail[storyDetails.size()];
+        storyDetails.toArray(storyDetailsArray);
+        int oneTimeDetailsNum = 1;
+        for(int i = 0; i < storyDetailsArray.length-1; i++){
+            if(!storyDetailsArray[i].getEditTime().equals(storyDetailsArray[i+1].getEditTime()) ){
+                oneTimeDetailsNum++;
+            }
         }
-        return storyDetailDTO;
+        System.out.println(oneTimeDetailsNum);
+        int[] contents = new int[oneTimeDetailsNum];
+        for(int i = 0; i < oneTimeDetailsNum; i++){
+            contents[i] = 0;
+        }
+        for(int i = 0, j = 0; i < storyDetailsArray.length -1; i++){
+            if(storyDetailsArray[i].getEditTime().equals(storyDetailsArray[i+1].getEditTime()) ){
+                contents[j]++;
+            }else{
+                contents[j]++;
+                j++;
+            }
+        }
+
+
+        StoryDetailVO result = new StoryDetailVO(productId, storyId);
+        Optional<Story> story = storyRepository.findById(newStoryUPK);
+        result.setStory(story.get());
+        StoryDetailVO.OneTimeDetail[] oneTimeDetailsArray = new StoryDetailVO.OneTimeDetail[oneTimeDetailsNum];
+        for(int i = 0, j =0; i < oneTimeDetailsNum; i++){
+            oneTimeDetailsArray[i] = result.createOne(storyDetails.get(j).getEditTime(),storyDetails.get(j).getEditName());
+            StoryDetailVO.Content[] contentArray = new StoryDetailVO.Content[contents[i]];
+            for(int m = 0; m < contents[i]; m++,j++){
+                contentArray[m] = oneTimeDetailsArray[i].createOne(storyDetails.get(j).getAttribute(),storyDetails.get(j).getPrevious(),storyDetails.get(j).getModified());
+                oneTimeDetailsArray[i].addOne(contentArray[m]);
+            }
+            result.addOne(oneTimeDetailsArray[i]);
+        }
+        return result;
+
     }
 
-    private Story getDifferenceBetween2Stories(Story story1, Story story2) {
-        Story result = new Story();
-        if (!compareString(story1.getConclusion(), story2.getConclusion())) {
-            result.setConclusion(story1.getConclusion());
+
+    private void getDifferenceBetween2Stories(Story newStory, Story lastStory) {
+        if (!compareString(newStory.getConclusion(), lastStory.getConclusion())) {
+            StoryDetail result = new StoryDetail();
+            result.setProductId(newStory.getStoryUPK().getProductId());
+            result.setStoryId(newStory.getStoryUPK().getStoryId());
+            result.setEditTime(newStory.getUpdateTime());
+            result.setEditName(customerRepository.findRealNameByCustomerId(newStory.getEditId()));
+            result.setAttribute("讨论结论");
+            result.setPrevious(lastStory.getConclusion());
+            result.setModified(newStory.getConclusion());
+            storyDetailRepository.save(result);
         }
-        if (!compareString(story1.getDescription(), story2.getDescription())) {
-            result.setDescription(story1.getDescription());
+        if (!compareString(newStory.getDescription(), lastStory.getDescription())) {
+            StoryDetail result = new StoryDetail();
+            result.setProductId(newStory.getStoryUPK().getProductId());
+            result.setStoryId(newStory.getStoryUPK().getStoryId());
+            result.setEditTime(newStory.getUpdateTime());
+            result.setEditName(customerRepository.findRealNameByCustomerId(newStory.getEditId()));
+            result.setAttribute("客户描述");
+            result.setPrevious(lastStory.getDescription());
+            result.setModified(newStory.getDescription());
+            storyDetailRepository.save(result);
         }
-        if (!compareInteger(story1.getDesignId(),story2.getDesignId())) {
-            result.setDesignId(story1.getDesignId());
+        if (!compareInteger(newStory.getDesignId(),lastStory.getDesignId())) {
+            StoryDetail result = new StoryDetail();
+            result.setProductId(newStory.getStoryUPK().getProductId());
+            result.setStoryId(newStory.getStoryUPK().getStoryId());
+            result.setEditTime(newStory.getUpdateTime());
+            result.setEditName(customerRepository.findRealNameByCustomerId(newStory.getEditId()));
+            result.setAttribute("设计负责人");
+            result.setPrevious(customerRepository.findRealNameByCustomerId(lastStory.getDesignId()));
+            result.setModified(customerRepository.findRealNameByCustomerId(newStory.getDesignId()));
+            storyDetailRepository.save(result);
         }
-        if (!compareInteger(story1.getDevId(), story2.getDevId())) {
-            result.setDevId(story1.getDevId());
+        if (!compareInteger(newStory.getDevId(), lastStory.getDevId())) {
+            StoryDetail result = new StoryDetail();
+            result.setProductId(newStory.getStoryUPK().getProductId());
+            result.setStoryId(newStory.getStoryUPK().getStoryId());
+            result.setEditTime(newStory.getUpdateTime());
+            result.setEditName(customerRepository.findRealNameByCustomerId(newStory.getEditId()));
+            result.setAttribute("开发负责人");
+            result.setPrevious(customerRepository.findRealNameByCustomerId(lastStory.getDevId()));
+            result.setModified(customerRepository.findRealNameByCustomerId(newStory.getDevId()));
+            storyDetailRepository.save(result);
         }
-        if (!compareInteger(story1.getTestId(),story2.getTestId())) {
-            result.setTestId(story1.getTestId());
+        if (!compareInteger(newStory.getTestId(),lastStory.getTestId())) {
+            StoryDetail result = new StoryDetail();
+            result.setProductId(newStory.getStoryUPK().getProductId());
+            result.setStoryId(newStory.getStoryUPK().getStoryId());
+            result.setEditTime(newStory.getUpdateTime());
+            result.setEditName(customerRepository.findRealNameByCustomerId(newStory.getEditId()));
+            result.setAttribute("测试负责人");
+            result.setPrevious(customerRepository.findRealNameByCustomerId(lastStory.getTestId()));
+            result.setModified(customerRepository.findRealNameByCustomerId(newStory.getTestId()));
+            storyDetailRepository.save(result);
         }
-        if (!compareString(story1.getOrigin(), story2.getOrigin())) {
-            result.setOrigin(story1.getOrigin());
+        if (!compareString(newStory.getOrigin(), lastStory.getOrigin())) {
+            StoryDetail result = new StoryDetail();
+            result.setProductId(newStory.getStoryUPK().getProductId());
+            result.setStoryId(newStory.getStoryUPK().getStoryId());
+            result.setEditTime(newStory.getUpdateTime());
+            result.setEditName(customerRepository.findRealNameByCustomerId(newStory.getEditId()));
+            result.setAttribute("需求来源");
+            result.setPrevious(lastStory.getOrigin());
+            result.setModified(newStory.getOrigin());
+            storyDetailRepository.save(result);
         }
-        if (!story1.getPutTime().equals(story2.getPutTime())) {
-            result.setPutTime(story1.getPutTime());
+        if (!newStory.getPutTime().equals(lastStory.getPutTime())) {
+            StoryDetail result = new StoryDetail();
+            result.setProductId(newStory.getStoryUPK().getProductId());
+            result.setStoryId(newStory.getStoryUPK().getStoryId());
+            result.setEditTime(newStory.getUpdateTime());
+            result.setEditName(customerRepository.findRealNameByCustomerId(newStory.getEditId()));
+            result.setAttribute("提出时间");
+            result.setPrevious(lastStory.getPutTime().toString());
+            result.setModified(newStory.getPutTime().toString());
+            storyDetailRepository.save(result);
         }
-        if (!compareString(story1.getStoryName(), story2.getStoryName())) {
-            result.setStoryName(story1.getStoryName());
+        if (!compareString(newStory.getStoryName(), lastStory.getStoryName())) {
+            StoryDetail result = new StoryDetail();
+            result.setProductId(newStory.getStoryUPK().getProductId());
+            result.setStoryId(newStory.getStoryUPK().getStoryId());
+            result.setEditTime(newStory.getUpdateTime());
+            result.setEditName(customerRepository.findRealNameByCustomerId(newStory.getEditId()));
+            result.setAttribute("需求名称");
+            result.setPrevious(lastStory.getStoryName());
+            result.setModified(newStory.getStoryName());
+            storyDetailRepository.save(result);
         }
-        if (!story1.getStoryStatus().equals(story2.getStoryStatus())) {
-            result.setStoryStatus(story1.getStoryStatus());
+        if (!newStory.getStoryStatus().equals(lastStory.getStoryStatus())) {
+            StoryDetail result = new StoryDetail();
+            result.setProductId(newStory.getStoryUPK().getProductId());
+            result.setStoryId(newStory.getStoryUPK().getStoryId());
+            result.setEditTime(newStory.getUpdateTime());
+            result.setEditName(customerRepository.findRealNameByCustomerId(newStory.getEditId()));
+            result.setAttribute("需求状态");
+            result.setPrevious(StoryStatusEnum.getMessage(lastStory.getStoryStatus()));
+            result.setModified(StoryStatusEnum.getMessage(lastStory.getStoryStatus()));
+            storyDetailRepository.save(result);
         }
-        result.setEditId(story1.getEditId());
-        result.setUpdateTime(story1.getUpdateTime());
-        return result;
     }
 
     /**
@@ -121,11 +241,11 @@ public class StoryServiceImpl implements StoryService {
      * @param str2 字符串2
      * @return true false
      */
-    private boolean compareString(String str1, String str2) {
+    private Boolean compareString(String str1, String str2) {
         return str1 == null && str2 == null || str1 != null && str1.equals(str2);
     }
 
-    private boolean compareInteger(Integer integer1, Integer integer2) {
+    private Boolean compareInteger(Integer integer1, Integer integer2) {
         return integer1 == null && integer2 == null || integer1 != null && integer1.equals(integer2);
     }
 
@@ -157,6 +277,12 @@ public class StoryServiceImpl implements StoryService {
         return storyList;
     }
 
+    @Override
+    public Page<Story> getStoriesByEditions(List<StoryUPK> storyUPK, Pageable pageable) {
+        Page<Story> storyPage = storyRepository.findByStoryUPKIn(storyUPK, pageable);
+        return storyPage;
+    }
+
     /**
      * 用于前端展示产品需求，使用分页实现
      * @param productId 产品id
@@ -167,14 +293,8 @@ public class StoryServiceImpl implements StoryService {
     @Override
     public Page<Story> getStoriesByProductId(Integer productId, Integer customerId, Pageable pageable) {
         if(customerRepository.findRoleByCustomerIdAndProductId(customerId, productId) != null){
-            List<Story> storyList = getStoriesByEditions(getStoryEditionsByProductId(productId));
-            int fromIndex = pageable.getPageSize() * pageable.getPageNumber();
-            int toIndex = pageable.getPageSize() * (pageable.getPageNumber() + 1);
-            int totalElements = storyList.size();
-            if(toIndex > totalElements) {
-                toIndex = totalElements;
-            }
-            return new PageImpl<>(storyList.subList(fromIndex, toIndex), pageable, storyList.size());
+            Page<Story> storyPage = getStoriesByEditions(getStoryEditionsByProductId(productId), pageable);
+            return storyPage;
         }
 
         return null;
@@ -252,28 +372,30 @@ public class StoryServiceImpl implements StoryService {
         return storyRepository.findByDescriptionContaining(description);
     }
 
+    //@Override
+    //public Page<Story> selectStory(Integer productId, String startTime, String endTime, String origin, String input, Pageable pageable) {
+    //    List<StoryUPK> storyUPKList = getStoryEditionsByProductId(productId);
+    //    List<Story> storyList = new ArrayList<>();
+    //    Story story;
+    //    for (StoryUPK storyUPK : storyUPKList) {
+    //        story = selectStory(storyUPK, startTime, endTime, origin, input);
+    //        if (story != null) {
+    //            storyList.add(story);
+    //        }
+    //    }
+    //    int fromIndex = pageable.getPageSize() * pageable.getPageNumber();
+    //    int toIndex = pageable.getPageSize() * (pageable.getPageNumber() + 1);
+    //    int totalElements = storyList.size();
+    //    if(toIndex > totalElements) {
+    //        toIndex = totalElements;
+    //    }
+    //    List<Story> indexObjects = storyList.subList(fromIndex,toIndex);
+    //    return new PageImpl<>(indexObjects, pageable, totalElements);
+    //}
+
     @Override
     public Page<Story> selectStory(Integer productId, String startTime, String endTime, String origin, String input, Pageable pageable) {
         List<StoryUPK> storyUPKList = getStoryEditionsByProductId(productId);
-        List<Story> storyList = new ArrayList<>();
-        Story story;
-        for (StoryUPK storyUPK : storyUPKList) {
-            story = selectStory(storyUPK, startTime, endTime, origin, input);
-            if (story != null) {
-                storyList.add(story);
-            }
-        }
-        int fromIndex = pageable.getPageSize() * pageable.getPageNumber();
-        int toIndex = pageable.getPageSize() * (pageable.getPageNumber() + 1);
-        int totalElements = storyList.size();
-        if(toIndex > totalElements) {
-            toIndex = totalElements;
-        }
-        List<Story> indexObjects = storyList.subList(fromIndex,toIndex);
-        return new PageImpl<>(indexObjects, pageable, totalElements);
-    }
-
-    private Story selectStory(StoryUPK storyUPK, String startTime, String endTime, String origin, String input) {
         Specification<Story> predicate = (root, criteriaQuery, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (startTime != null) {
@@ -290,11 +412,14 @@ public class StoryServiceImpl implements StoryService {
                 Predicate p2 = criteriaBuilder.like(root.get("description").as(String.class), "%" + input + "%");
                 predicates.add(criteriaBuilder.or(p1, p2));
             }
-            predicates.add(criteriaBuilder.equal(root.get("storyUPK").as(StoryUPK.class), storyUPK));
+            CriteriaBuilder.In<Object> in = criteriaBuilder.in(root.get("storyUPK"));
+            in.value(storyUPKList);
+            predicates.add(in);
+            criteriaQuery.orderBy(criteriaBuilder.desc(root.get("putTime")));
             Predicate[] pre = new Predicate[predicates.size()];
             return criteriaQuery.where(predicates.toArray(pre)).getRestriction();
         };
-        return storyRepository.findOne(predicate);
+        return storyRepository.findAll(predicate, pageable);
     }
 
 }

@@ -22,4 +22,6 @@ public class Message {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createdTime;
+
+
 }

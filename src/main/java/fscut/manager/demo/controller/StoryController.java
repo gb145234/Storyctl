@@ -1,6 +1,5 @@
 package fscut.manager.demo.controller;
 
-import fscut.manager.demo.dto.StoryDetailDTO;
 import fscut.manager.demo.dto.UserDto;
 import fscut.manager.demo.entity.Customer;
 import fscut.manager.demo.entity.Message;
@@ -12,6 +11,7 @@ import fscut.manager.demo.service.StoryService;
 import fscut.manager.demo.service.serviceimpl.UserService;
 import fscut.manager.demo.util.CsvUtils;
 import fscut.manager.demo.util.websocket.WebSocketServer;
+import fscut.manager.demo.vo.StoryDetailVO;
 import fscut.manager.demo.vo.StoryVO;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
@@ -50,9 +50,6 @@ public class StoryController {
 
     @Resource
     private MessageService messageService;
-
-    @Resource
-    private WebSocketServer webSocketServer;
 
     @PostMapping("newStory")
     public ResponseEntity newStory(@RequestBody StoryVO storyVO){
@@ -103,6 +100,7 @@ public class StoryController {
             return ResponseEntity.ok("为空！");
         }
 
+
         Message message = messageService.addUpdateMessage(updatedStory);
 
         Integer designId = updatedStory.getDesignId();
@@ -118,6 +116,7 @@ public class StoryController {
             WebSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(testId));
         }
 
+
         return ResponseEntity.ok(updatedStory);
     }
 
@@ -127,19 +126,20 @@ public class StoryController {
 
         Subject subject = SecurityUtils.getSubject();
         UserDto user = (UserDto) subject.getPrincipal();
-        PageRequest pageRequest = PageRequest.of(page, size);
+        Sort.Direction sort = Sort.Direction.DESC;
+        PageRequest pageRequest = PageRequest.of(page, size, sort, "putTime");
         Page<Story> storyPage = storyService.getStoriesByProductId(id, user.getUserId(), pageRequest);
 
         return ResponseEntity.ok(storyPage);
     }
 
     @GetMapping("Story")
-    public ResponseEntity<StoryDetailDTO> showStoryInfo(Integer productId, Integer storyId, Integer edition){
+    public ResponseEntity<StoryDetailVO> showStoryInfo(Integer productId, Integer storyId, Integer edition){
         userService.userAllowed(productId);
 
         StoryUPK storyUPK = new StoryUPK(productId, storyId, edition);
-        StoryDetailDTO storyDetailDTO = storyService.getStoryInfo(storyUPK);
-        return ResponseEntity.ok(storyDetailDTO);
+        StoryDetailVO storyDetailVO = storyService.getStoryInfo(storyUPK);
+        return ResponseEntity.ok(storyDetailVO);
     }
 
     @PostMapping("history")
@@ -171,10 +171,6 @@ public class StoryController {
         }
         PageRequest pageRequest = PageRequest.of(page, size, sort, "putTime");
         Page<Story> stories = storyService.selectStory(productId, startTime, endTime, origin, userInput, pageRequest);
-        System.out.println(pageRequest.getSort());
-        for (Story story : stories) {
-            System.out.println(story.toString());
-        }
         return ResponseEntity.ok(stories);
     }
 
@@ -188,25 +184,18 @@ public class StoryController {
     @GetMapping("download")
     public ResponseEntity<FileSystemResource> download(Integer productId, HttpServletResponse response) throws UnsupportedEncodingException {
         userService.userAllowed(productId);
-        //response.setContentType("application/csv");
-        //response.setHeader("Content-Disposition","attachment;filename=writeCSV.csv");
         Subject subject = SecurityUtils.getSubject();
         UserDto user = (UserDto) subject.getPrincipal();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Content-Disposition", "attachment; filename=" + URLEncoder.encode("writeXLS.xls", "UTF-8"));
+        headers.add("Content-Disposition", "attachment; filename=" + URLEncoder.encode("writeCSV.csv", "UTF-8"));
         headers.add("Pragma", "no-cache");
         headers.add("Expires", "0");
         headers.add("Last-Modified", new Date().toString());
         headers.add("ETag", String.valueOf(System.currentTimeMillis()));
 
-        List<Story> storiesByProductId = storyService.getStoriesByProductId(productId, user.getUserId());
-        for (Story story : storiesByProductId) {
-            System.out.println(storiesByProductId.size());
-            System.out.println(story.toString());
-        }
-        //CsvUtils.download(storyService.getStoriesByProductId(productId, user.getUserId()), response);
-        File file = new File("D:\\writeXLS.xls");
+        CsvUtils.download(storyService.getStoriesByProductId(productId, user.getUserId()), response);
+        File file = new File("D:\\writeCSV.csv");
         return ResponseEntity.ok().headers(headers).contentLength(file.length()).
                 contentType(MediaType.parseMediaType("application/octet-stream")).
                 body(new FileSystemResource(file));

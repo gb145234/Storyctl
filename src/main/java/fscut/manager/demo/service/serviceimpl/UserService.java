@@ -41,7 +41,7 @@ public class UserService {
 
     	redisTemplate.opsForValue().set("token:"+username, salt, 3600, TimeUnit.SECONDS);
 
-    	return JwtUtils.sign(username, salt, 3600); //生成jwt token，设置过期时间为1小时
+    	return JwtUtils.sign(username, salt, 3600L); //生成jwt token，设置过期时间为1小时
     }
     
     /**

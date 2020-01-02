@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.annotation.Resource;
 import java.sql.Date;
 import java.util.List;
 
@@ -18,8 +20,11 @@ import java.util.List;
 @SpringBootTest
 public class StoryRepositoryTest {
 
-    @Autowired
+    @Resource
     private StoryRepository storyRepository;
+
+    @Resource
+    private StoryEditionRepository storyEditionRepository;
 
     @Test
     public void testFindByStoryNameContainingAndDescriptionContaining() throws Exception {
@@ -39,6 +44,13 @@ public class StoryRepositoryTest {
     public void testFindByNameContains() throws Exception {
         List<Story> storyList = storyRepository.findByStoryNameContaining("次");
         Assert.assertNotEquals(0, storyList.size());
+    }
+
+    @Test
+    public void testFindByStoryUPKList() throws Exception {
+        PageRequest pageRequest = PageRequest.of(0, 5, Sort.Direction.DESC, "putTime");
+        Page<Story> storyPage = storyRepository.findByStoryUPKIn(storyEditionRepository.findStoryEditionsByProductId(1), pageRequest);
+        Assert.assertNotEquals(0, storyPage.getTotalElements());
     }
 
 }

@@ -80,4 +80,8 @@ public interface StoryRepository extends JpaRepository<Story, StoryUPK> {
      * @return 需求
      */
     Story findOne(Specification<Story> specification);
+
+    Page<Story> findAll(Specification<Story> specification, Pageable pageable);
+
+    Page<Story> findByStoryUPKIn(List<StoryUPK> storyUPKList, Pageable pageable);
 }

@@ -18,4 +18,14 @@ public enum  StoryStatusEnum implements CodeEnum {
         this.code = code;
         this.message = message;
     }
+
+    public static String getMessage(Integer code){
+        for(StoryStatusEnum s : StoryStatusEnum.values()){
+            if(s.getCode() == code){
+                return s.getMessage();
+            }
+        }
+        return null;
+    }
+
 }
