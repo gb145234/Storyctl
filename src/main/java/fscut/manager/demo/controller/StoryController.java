@@ -1,5 +1,7 @@
 package fscut.manager.demo.controller;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import fscut.manager.demo.dto.CustomerListDTO;
 import fscut.manager.demo.dto.UserDto;
 import fscut.manager.demo.entity.Customer;
 import fscut.manager.demo.entity.Message;
@@ -116,7 +118,6 @@ public class StoryController {
             WebSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(testId));
         }
 
-
         return ResponseEntity.ok(updatedStory);
     }
 
@@ -174,11 +175,15 @@ public class StoryController {
         return ResponseEntity.ok(stories);
     }
 
+    @JsonView(Customer.SimpleView.class)
     @GetMapping("customerList")
-    public ResponseEntity<List> getCustomers() {
-        List<Customer> customerList = customerService.getCustomers();
-        return ResponseEntity.ok(customerList);
+    public ResponseEntity<CustomerListDTO> getCustomers(Integer productId) {
+
+        CustomerListDTO customerListDTO = storyService.getCustomers(productId);
+
+        return ResponseEntity.ok(customerListDTO);
     }
+
 
 
     @GetMapping("download")

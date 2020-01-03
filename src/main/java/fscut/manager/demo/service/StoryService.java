@@ -1,6 +1,6 @@
 package fscut.manager.demo.service;
 
-import fscut.manager.demo.dto.StoryDetailDTO;
+import fscut.manager.demo.dto.CustomerListDTO;
 import fscut.manager.demo.entity.Story;
 import fscut.manager.demo.entity.UPK.StoryUPK;
 import fscut.manager.demo.vo.StoryDetailVO;
@@ -38,6 +38,7 @@ public interface StoryService {
 
     Story convertStoryVO2Story(StoryVO storyVO);
 
+    CustomerListDTO getCustomers(Integer productId);
 
     /**
      * 需求名称模糊查询

@@ -12,7 +12,6 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,9 +35,6 @@ public class LoginController {
     private MessageService messageService;
 
     @Resource
-    private RedisTemplate redisTemplate;
-
-    @Resource
     private ProductService productService;
 
     @PostMapping(value = "/login")
@@ -52,8 +48,10 @@ public class LoginController {
             String newToken = userService.generateJwtToken(user.getUsername());
             response.setHeader("token", newToken);
 
-            System.out.println(user.getUsername());
-            WebSocketServer.sendInfo("您共有" + messageService.getUnreadMessageNum(user.getUsername()) + "条消息未读", user.getUsername());
+            Integer unreadMessageNum = messageService.getUnreadMessageNum(user.getUsername());
+            if (unreadMessageNum != 0) {
+                WebSocketServer.sendInfo("您共有" + unreadMessageNum + "条消息未读", user.getUsername());
+            }
             return ResponseEntity.ok().build();
         } catch (AuthenticationException e) {
             logger.error("User {} login fail, Reason:{}", loginInfo.getUsername(), e.getMessage());

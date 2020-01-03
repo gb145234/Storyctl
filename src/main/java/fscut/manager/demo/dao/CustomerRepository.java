@@ -35,6 +35,9 @@ public interface CustomerRepository extends JpaRepository<Customer,Integer>{
     @Query("select new fscut.manager.demo.entity.Customer(c.id,c.username,c.password,c.realName,c.productId) from Customer c, CustomerRole cr where cr.customerRoleUPK.productId = :productId and cr.customerRoleUPK.customerId = c.id")
     List<Customer> findCustomersByProductId(@Param("productId") Integer productId);
 
+    @Query("select new fscut.manager.demo.entity.Customer(c.id,c.username,c.password,c.realName,c.productId) from Customer c, CustomerRole cr where cr.customerRoleUPK.productId = :productId and cr.customerRoleUPK.roleId = :roleId and cr.customerRoleUPK.customerId = c.id")
+    List<Customer> getCustomersByProductIdAndRole(@Param("productId") Integer productId, @Param("roleId") Integer roleId);
+
     @Query(value = "select DISTINCT role_code from customer_role as cr left join role on cr.role_id = role.id where customer_id = ?1", nativeQuery = true)
     List<String> findRolesByCustomerId(Integer userId);
 
