@@ -2,6 +2,7 @@ package fscut.manager.demo.controller;
 
 import fscut.manager.demo.dto.UserDto;
 import fscut.manager.demo.entity.Product;
+import fscut.manager.demo.service.CustomerService;
 import fscut.manager.demo.service.MessageService;
 import fscut.manager.demo.service.ProductService;
 import fscut.manager.demo.service.serviceimpl.UserService;
@@ -37,8 +38,11 @@ public class LoginController {
     @Resource
     private ProductService productService;
 
+    @Resource
+    private CustomerService customerService;
+
     @PostMapping(value = "/login")
-    public ResponseEntity<Void> login(@RequestBody UserDto loginInfo, HttpServletResponse response) {
+    public ResponseEntity<String> login(@RequestBody UserDto loginInfo, HttpServletResponse response) {
         Subject subject = SecurityUtils.getSubject();
         try {
             UsernamePasswordToken token = new UsernamePasswordToken(loginInfo.getUsername(), loginInfo.getPassword());
@@ -50,9 +54,11 @@ public class LoginController {
 
             Integer unreadMessageNum = messageService.getUnreadMessageNum(user.getUsername());
             if (unreadMessageNum != 0) {
-                WebSocketServer.sendInfo("您共有" + unreadMessageNum + "条消息未读", user.getUsername());
+                //webSocketServer.sendInfo("您共有" + unreadMessageNum + "条消息未读", user.getUsername());
             }
-            return ResponseEntity.ok().build();
+            Integer userId = customerService.getIdByUsername(user.getUsername());
+            String roleCode = customerService.getRoleCodeByUserId(userId);
+            return ResponseEntity.ok(roleCode);
         } catch (AuthenticationException e) {
             logger.error("User {} login fail, Reason:{}", loginInfo.getUsername(), e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

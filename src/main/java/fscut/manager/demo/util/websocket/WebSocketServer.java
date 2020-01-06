@@ -58,8 +58,7 @@ public class WebSocketServer {
         }
     }
 
-    public static void sendInfo(Object message, String username) {
-        System.out.println(username);
+    public void sendInfo(Object message, String username) {
         webSocketMap.get(username).sendMessage(message);
         log.info("向{}发送了消息：{}", username, message);
     }

@@ -53,6 +53,9 @@ public class StoryController {
     @Resource
     private MessageService messageService;
 
+    @Resource
+    private WebSocketServer webSocketServer;
+
     @PostMapping("newStory")
     public ResponseEntity newStory(@RequestBody StoryVO storyVO){
         userService.userAllowed(storyVO.getStoryUPK().getProductId());
@@ -76,13 +79,13 @@ public class StoryController {
         Integer testId = newStory.getTestId();
 
         if (designId != null) {
-            WebSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(designId));
+            webSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(designId));
         }
         if (devId != null) {
-            WebSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(devId));
+            webSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(devId));
         }
         if (testId != null) {
-            WebSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(testId));
+            webSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(testId));
         }
 
         return ResponseEntity.ok(newStory);
@@ -109,13 +112,13 @@ public class StoryController {
         Integer devId = updatedStory.getDevId();
         Integer testId = updatedStory.getTestId();
         if (designId != null) {
-            WebSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(designId));
+            webSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(designId));
         }
         if (devId != null) {
-            WebSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(devId));
+            webSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(devId));
         }
         if (testId != null) {
-            WebSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(testId));
+            webSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(testId));
         }
 
         return ResponseEntity.ok(updatedStory);

@@ -1,6 +1,7 @@
 package fscut.manager.demo.util;
 
 import fscut.manager.demo.entity.Story;
+import fscut.manager.demo.enums.StoryStatusEnum;
 import fscut.manager.demo.service.CustomerService;
 import fscut.manager.demo.vo.StoryCsvVO;
 import lombok.extern.slf4j.Slf4j;
@@ -61,19 +62,19 @@ public class CsvUtils {
 
     private static void storyToCsv(List<StoryCsvVO> data) {
         List<String[]> result = new ArrayList<>();
-        String[] headers = new String[]{"storyName","origin","putTime","storyStatus","description","conclusion","editName","designName","devName","testName","testTime","updateTime"};
+        String[] headers = new String[]{"需求名称","来源","提出时间","需求状态","客户描述","讨论总结","编辑人姓名","设计人负责人姓名","开发人负责人姓名","测试负责人姓名","转测试时间","更新时间"};
         for (StoryCsvVO s:data) {
             result.add(new String[]{s.getStoryName(),
                                     s.getOrigin(),
-                                    String.valueOf(s.getPutTime()),
-                                    String.valueOf(s.getStoryStatus()),
+                                    dateToString(s.getPutTime()),
+                                    StoryStatusEnum.getMessage(s.getStoryStatus()),
                                     removeHtmlTag(s.getDescription()),
                                     removeHtmlTag(s.getConclusion()),
                                     s.getEditName(),
                                     s.getDesignName(),
                                     s.getDevName(),
                                     s.getTestName(),
-                                    String.valueOf(s.getTestTime()),
+                                    dateToString(s.getTestTime()),
                                     getStringDate(s.getUpdateTime())});
         }
         //CSV文件下载地址
@@ -84,7 +85,7 @@ public class CsvUtils {
         }
     }
 
-    public static String download(List<Story> stories, HttpServletResponse response) {
+    public static void download(List<Story> stories, HttpServletResponse response) {
         List<StoryCsvVO> result = new ArrayList<>();
         for (Story story: stories) {
             StoryCsvVO tmp = new StoryCsvVO();
@@ -97,7 +98,6 @@ public class CsvUtils {
         }
         storyToCsv(result);
         readFile(response);
-        return PATH;
     }
 
     private static String getStringDate(Date date){
@@ -125,6 +125,14 @@ public class CsvUtils {
         }catch(IOException e) {
             log.info(e.getMessage());
         }
+    }
+
+    private static String dateToString(Date date) {
+        if (date == null) {
+            return "/";
+        }
+        String s = String.valueOf(date);
+        return s;
     }
 
 
@@ -172,21 +180,6 @@ public class CsvUtils {
         }
         // 返回文本字符串
         return textStr;
-    }
-
-    public static ResponseEntity<FileSystemResource> export(File file) {
-        if (file == null) {
-            return null;
-        }
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Content-Disposition", "attachment; filename=" + "writeCSV.csv");
-        headers.add("Pragma", "no-cache");
-        headers.add("Expires", "0");
-        headers.add("Last-Modified", new Date().toString());
-        headers.add("ETag", String.valueOf(System.currentTimeMillis()));
-
-        return ResponseEntity.ok().headers(headers).contentLength(file.length()).contentType(MediaType.parseMediaType("application/octet-stream")).body(new FileSystemResource(file));
     }
 
 }

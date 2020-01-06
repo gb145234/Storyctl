@@ -1,6 +1,7 @@
 package fscut.manager.demo.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import fscut.manager.demo.dto.CustomerDTO;
 import fscut.manager.demo.entity.Customer;
 import fscut.manager.demo.entity.CustomerRole;
 import fscut.manager.demo.exception.CustomerAlreadyExitsException;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin
@@ -82,6 +84,18 @@ public class CustomerController {
         return ResponseEntity.ok(null);
     }
 
-
+    @PostMapping("createCustomer")
+    @RequiresRoles("admin")
+    public ResponseEntity createCustomer(@RequestBody CustomerDTO customerDTO) throws CustomerAlreadyExitsException {
+        Optional<Customer> optional = customerService.createCustomer(customerDTO);
+        Customer customer = null;
+        if (optional.isPresent()) {
+            customer = optional.get();
+        }
+        if (customer == null) {
+            return ResponseEntity.ok("为空！");
+        }
+        return ResponseEntity.ok(customer);
+    }
 
 }

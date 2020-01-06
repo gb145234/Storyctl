@@ -2,17 +2,20 @@ package fscut.manager.demo.service.serviceimpl;
 
 import fscut.manager.demo.dao.CustomerRepository;
 import fscut.manager.demo.dao.CustomerRoleRepository;
+import fscut.manager.demo.dto.CustomerDTO;
 import fscut.manager.demo.entity.Customer;
 import fscut.manager.demo.entity.CustomerRole;
 import fscut.manager.demo.exception.CustomerAlreadyExitsException;
 import fscut.manager.demo.exception.CustomerNotExitsException;
 import fscut.manager.demo.service.CustomerService;
 import fscut.manager.demo.vo.CustomerAuthVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -100,9 +103,27 @@ public class CustomerServiceImpl implements CustomerService {
     public Integer getIdByUsername(String username) {
         return customerRepository.getIdByUsername(username);
     }
+
     @Override
     public List getCustomers() {
         return customerRepository.findIdAndRealName();
+    }
+
+    @Override
+    public String getRoleCodeByUserId(Integer userId) {
+        return customerRepository.findRoleCodeByUserId(userId);
+    }
+
+    @Override
+    @Transactional(rollbackOn = Exception.class)
+    public Optional<Customer> createCustomer(CustomerDTO customerDTO) throws CustomerAlreadyExitsException {
+        if(customerRepository.findCustomerByUsername(customerDTO.getUsername()) != null) {
+            throw new CustomerAlreadyExitsException("customer exits");
+        }
+        Customer customer = new Customer();
+        BeanUtils.copyProperties(customerDTO, customer);
+        Customer newCustomer = customerRepository.save(customer);
+        return customerRepository.findById(newCustomer.getId());
     }
 
 }

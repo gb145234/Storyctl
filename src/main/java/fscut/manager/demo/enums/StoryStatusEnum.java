@@ -21,7 +21,7 @@ public enum  StoryStatusEnum implements CodeEnum {
 
     public static String getMessage(Integer code){
         for(StoryStatusEnum s : StoryStatusEnum.values()){
-            if(s.getCode() == code){
+            if(s.getCode().equals(code)){
                 return s.getMessage();
             }
         }

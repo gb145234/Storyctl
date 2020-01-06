@@ -93,7 +93,6 @@ public class JwtAuthFilter extends AuthenticatingFilter {
     protected boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request, ServletResponse response) throws Exception {
         HttpServletResponse httpResponse = WebUtils.toHttp(response);
         String newToken = null;
-
         if(token instanceof JWTToken){
             JWTToken jwtToken = (JWTToken)token;
             UserDto user = (UserDto) subject.getPrincipal();
