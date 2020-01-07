@@ -71,7 +71,7 @@ public class ShiroConfig {
     @Bean
     public static DefaultAdvisorAutoProxyCreator getDefaultAdvisorAutoProxyCreator(){
         DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator = new DefaultAdvisorAutoProxyCreator();
-        defaultAdvisorAutoProxyCreator.setProxyTargetClass(true); //important
+        defaultAdvisorAutoProxyCreator.setProxyTargetClass(true);
         return defaultAdvisorAutoProxyCreator;
     }
 
@@ -123,11 +123,11 @@ public class ShiroConfig {
         return chainDefinition;
     }
 
-    protected JwtAuthFilter createAuthFilter(UserService userService){
+    private JwtAuthFilter createAuthFilter(UserService userService){
         return new JwtAuthFilter(userService);
     }
 
-    protected AnyRolesAuthFilter createAnyRolesAuthFilter(){
+    private AnyRolesAuthFilter createAnyRolesAuthFilter(){
         return new AnyRolesAuthFilter();
     }
 

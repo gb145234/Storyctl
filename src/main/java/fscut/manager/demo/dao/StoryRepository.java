@@ -1,5 +1,6 @@
 package fscut.manager.demo.dao;
 
+import fscut.manager.demo.entity.Customer;
 import fscut.manager.demo.entity.Story;
 import fscut.manager.demo.entity.UPK.StoryUPK;
 import org.springframework.data.domain.Page;
@@ -51,6 +52,7 @@ public interface StoryRepository extends JpaRepository<Story, StoryUPK> {
     Story findStoryByEdition(@Param("storyUPK") StoryUPK storyUPK);
 
 
+
     /**
      * 根据需求名称模糊查询
      * @param storyName 需求名称
@@ -75,13 +77,19 @@ public interface StoryRepository extends JpaRepository<Story, StoryUPK> {
     Page<Story> findByStoryNameContainingAndDescriptionContaining(String storyName, String description, Pageable pageable);
 
     /**
-     * 动态查询
-     * @param specification 动态查询
-     * @return 需求
+     *
+     * @param specification
+     * @param pageable
+     * @return
      */
-    Story findOne(Specification<Story> specification);
-
     Page<Story> findAll(Specification<Story> specification, Pageable pageable);
 
+    /**
+     *
+     * @param storyUPKList
+     * @param pageable
+     * @return
+     */
     Page<Story> findByStoryUPKIn(List<StoryUPK> storyUPKList, Pageable pageable);
+
 }

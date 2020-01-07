@@ -45,7 +45,7 @@ public interface CustomerRepository extends JpaRepository<Customer,Integer>{
     String findRoleCodeByUserId(Integer userId);
 
     @Modifying
-    @Transactional
+    @Transactional(rollbackOn = Exception.class)
     @Query(value = "delete from customer where username = ?1", nativeQuery = true)
     void deleteCustomerByUsername(String username);
 
@@ -56,10 +56,22 @@ public interface CustomerRepository extends JpaRepository<Customer,Integer>{
     String getUsernameById(Integer userId);
 
     /**
-     * 查找所有用户的id和真实姓名
+     * 查找所有用户的id，username和真实姓名
      * @return 用户列表
      */
-    @Query(value = "select id,realname from customer", nativeQuery = true)
-    List findIdAndRealName();
+    @Query(value = "select id,username,realname from customer", nativeQuery = true)
+    List findUsernameAndRealName();
+
+    /**
+     * 修改用户密码
+     * @param password 密码
+     * @param customerId 用户id
+     * @return 修改条数
+     */
+    @Modifying
+    @Transactional(rollbackOn = Exception.class)
+    @Query(value = "update customer set password = ?1 where id = ?2", nativeQuery = true)
+    Integer updateCustomerPassword(String password, Integer customerId);
+
 
 }

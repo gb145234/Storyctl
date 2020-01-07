@@ -17,7 +17,7 @@ public interface CustomerRoleRepository extends JpaRepository<CustomerRole, Cust
     @Modifying
     @Transactional
     @Query(value = "delete from customer_role where customer_id = ?1 and product_id = ?2", nativeQuery = true)
-    void deleteFromProduct(Integer customerId, Integer productId);
+    Integer deleteFromProduct(Integer customerId, Integer productId);
 
     @Modifying
     @Transactional

@@ -11,6 +11,7 @@ import fscut.manager.demo.service.CustomerService;
 import fscut.manager.demo.vo.CustomerAuthVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -27,18 +28,14 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerRepository customerRepository;
 
     @Override
-    public void addToProduct(CustomerAuthVO customerAuthVO){
+    public CustomerRole addToProduct(CustomerAuthVO customerAuthVO){
         CustomerRole customerRole = new CustomerRole();
 
         customerRole.getCustomerRoleUPK().setProductId(customerAuthVO.getProductId());
-        customerRole.getCustomerRoleUPK().setCustomerId(customerRepository.getIdByRealName(customerAuthVO.getRealName()));
+        customerRole.getCustomerRoleUPK().setCustomerId(customerRepository.getIdByUsername(customerAuthVO.getUsername()));
         customerRole.getCustomerRoleUPK().setRoleId(customerRoleRepository.getRoleIdByRoleName(customerAuthVO.getRoleName()));
-        customerRoleRepository.save(customerRole);
-    }
-
-    @Override
-    public List<Customer> getCustomerList(){
-        return customerRepository.findAll();
+        CustomerRole role = customerRoleRepository.save(customerRole);
+        return role;
     }
 
     @Override
@@ -47,18 +44,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void deleteFromProduct(Integer customerId, Integer productId){
-        customerRoleRepository.deleteFromProduct(customerId, productId);
-    }
-
-    @Override
-    public Customer addCustomer(Customer customer) throws CustomerAlreadyExitsException{
-        customer.setProductId(0);
-        if(customerRepository.findCustomerByUsername(customer.getUsername()) != null) {
-            throw new CustomerAlreadyExitsException("customer exits");
-        }
-
-        return customerRepository.save(customer);
+    public Integer deleteFromProduct(Integer customerId, Integer productId){
+        Integer res = customerRoleRepository.deleteFromProduct(customerId, productId);
+        return res;
     }
 
     @Override
@@ -74,13 +62,13 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void assignRole(CustomerRole customerRole){
-        customerRoleRepository.save(customerRole);
+    public void deleteRole(CustomerRole customerRole){
+        customerRoleRepository.delete(customerRole);
     }
 
     @Override
-    public void deleteRole(CustomerRole customerRole){
-        customerRoleRepository.delete(customerRole);
+    public void assignRole(CustomerRole customerRole){
+        customerRoleRepository.save(customerRole);
     }
 
     @Override
@@ -105,8 +93,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List getCustomers() {
-        return customerRepository.findIdAndRealName();
+    public List<Customer> getCustomers() {
+        return customerRepository.findAll();
     }
 
     @Override
@@ -124,6 +112,12 @@ public class CustomerServiceImpl implements CustomerService {
         BeanUtils.copyProperties(customerDTO, customer);
         Customer newCustomer = customerRepository.save(customer);
         return customerRepository.findById(newCustomer.getId());
+    }
+
+    @Override
+    public Integer updateCustomer(String password, String username) {
+        Integer userId = customerRepository.getIdByUsername(username);
+        return customerRepository.updateCustomerPassword(password, userId);
     }
 
 }

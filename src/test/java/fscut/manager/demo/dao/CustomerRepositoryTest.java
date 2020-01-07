@@ -25,11 +25,4 @@ public class CustomerRepositoryTest {
         Assert.assertNotEquals(0, customerList.size());
     }
 
-    @Test
-    public void testFindCustomerIdAndRealName() throws Exception {
-        List customerList = customerRepository.findIdAndRealName();
-        System.out.println(customerList.size());
-        Assert.assertNotEquals(0, customerList.size());
-    }
-
 }

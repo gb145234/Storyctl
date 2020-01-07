@@ -41,6 +41,9 @@ public class LoginController {
     @Resource
     private CustomerService customerService;
 
+    @Resource
+    private WebSocketServer webSocketServer;
+
     @PostMapping(value = "/login")
     public ResponseEntity<String> login(@RequestBody UserDto loginInfo, HttpServletResponse response) {
         Subject subject = SecurityUtils.getSubject();

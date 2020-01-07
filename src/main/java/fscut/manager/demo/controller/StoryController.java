@@ -178,6 +178,12 @@ public class StoryController {
         return ResponseEntity.ok(stories);
     }
 
+    @GetMapping("findStory")
+    public ResponseEntity<List<Story>> findStoryById(Integer productId, Integer storyId) {
+        List<Story> storyList = storyService.getStoryByStoryId(productId, storyId);
+        return ResponseEntity.ok(storyList);
+    }
+
     @JsonView(Customer.SimpleView.class)
     @GetMapping("customerList")
     public ResponseEntity<CustomerListDTO> getCustomers(Integer productId) {
@@ -186,8 +192,6 @@ public class StoryController {
 
         return ResponseEntity.ok(customerListDTO);
     }
-
-
 
     @GetMapping("download")
     public ResponseEntity<FileSystemResource> download(Integer productId, HttpServletResponse response) throws UnsupportedEncodingException {

@@ -414,4 +414,16 @@ public class StoryServiceImpl implements StoryService {
         return storyRepository.findAll(predicate, pageable);
     }
 
+    @Override
+    public List<Story> getStoryByStoryId(Integer productId, Integer storyId) {
+        List<Story> storyList = new ArrayList<>();
+        List<StoryUPK> storyUPKList = getStoryEditionsByProductId(productId);
+        for (StoryUPK storyUPK : storyUPKList) {
+            if (storyUPK.getStoryId().equals(storyId)) {
+                storyList.add(storyRepository.findStoryByEdition(storyUPK));
+            }
+        }
+        return storyList;
+    }
+
 }

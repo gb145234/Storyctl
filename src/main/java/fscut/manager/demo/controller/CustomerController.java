@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,15 +23,8 @@ import java.util.Optional;
 @RequestMapping("customer")
 public class CustomerController {
 
-    @Autowired
+    @Resource
     private CustomerService customerService;
-
-    @PostMapping("addCustomer")
-    @RequiresRoles("admin")
-    public ResponseEntity<Customer> addCustomer(@RequestBody Customer customer) throws CustomerAlreadyExitsException {
-        Customer result = customerService.addCustomer(customer);
-        return ResponseEntity.ok(result);
-    }
 
     @DeleteMapping("deleteCustomer")
     @RequiresRoles("admin")
@@ -43,7 +37,7 @@ public class CustomerController {
     @GetMapping("customerList")
     @RequiresRoles(value={"admin","manager"}, logical = Logical.OR)
     public ResponseEntity<List<Customer>> getCustomerList(){
-        List<Customer> customerList = customerService.getCustomerList();
+        List<Customer> customerList = customerService.getCustomers();
         return ResponseEntity.ok(customerList);
     }
 
@@ -72,16 +66,16 @@ public class CustomerController {
 
     @PostMapping("addToProduct")
     @RequiresRoles("manager")
-    public ResponseEntity<String> addToProduct(@RequestBody CustomerAuthVO customerAuthVO){
-        customerService.addToProduct(customerAuthVO);
-        return ResponseEntity.ok("ok");
+    public ResponseEntity<CustomerRole> addToProduct(@RequestBody CustomerAuthVO customerAuthVO){
+        CustomerRole customerRole = customerService.addToProduct(customerAuthVO);
+        return ResponseEntity.ok(customerRole);
     }
 
     @DeleteMapping("deleteFromProduct")
     @RequiresRoles("manager")
-    public ResponseEntity<Void> deleteFromProduct(Integer customerId, Integer productId){
-        customerService.deleteFromProduct(customerId,productId);
-        return ResponseEntity.ok(null);
+    public ResponseEntity<Integer> deleteFromProduct(Integer customerId, Integer productId){
+        Integer res = customerService.deleteFromProduct(customerId, productId);
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping("createCustomer")
@@ -96,6 +90,16 @@ public class CustomerController {
             return ResponseEntity.ok("为空！");
         }
         return ResponseEntity.ok(customer);
+    }
+
+    @PostMapping("updateCustomer")
+    @RequiresRoles("admin")
+    public ResponseEntity updateCustomer(String password, String username) {
+        Integer res = customerService.updateCustomer(password, username);
+        if (res == 1) {
+            return ResponseEntity.ok(res);
+        }
+        return ResponseEntity.status(401);
     }
 
 }

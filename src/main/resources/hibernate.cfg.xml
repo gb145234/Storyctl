@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.c3p0.max_size">50</property>
+        <property name="hibernate.c3p0.min_size">10</property>
+        <property name="hibernate.c3p0.timeout">300</property>
+        <property name="hibernate.c3p0.max_statements">1000</property>
+        <property name="hibernate.c3p0.acquire_increment">3</property>
+        <property name="hibernate.c3p0.idle_test_period">200</property>
+
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">false</property>
+        <property name="format_sql">true</property>
+        <!--<property name="hbm2ddl.auto">update</property>-->
+        <property name="javax.persistence.validation.mode">auto</property>
+        <property name="hibernate.cache.use_second_level_cache">false</property>
+
+        <property name="hibernate.search.lucene_version">LUCENE_CURRENT</property>
+        <property name="hibernate.search.default.directory_provider">org.hibernate.search.store.impl.FSDirectoryProvider</property>
+        <property name="hibernate.search.default.indexBase">../Indexes</property>
+        <!--设置hibernate Search自动优化-->
+        <property name="hibernate.search.default.optimizer.operation_limit.max">1000</property>
+        <property name="hibernate.search.default.optimizer.transaction_limit.max">100</property>
+        <property name="hibernate.search.error_handler">log</property>
+
+    </session-factory>
+</hibernate-configuration>

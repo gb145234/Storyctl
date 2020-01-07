@@ -7,7 +7,7 @@ public class CustomerAuthVO {
 
     private Integer productId;
 
-    private String realName;
+    private String username;
 
     private String roleName;
 }

@@ -63,4 +63,12 @@ public interface StoryService {
      * @return 需求分页
      */
     Page<Story> selectStory(Integer productId, String startTime, String endTime, String origin, String input, Pageable pageable);
+
+    /**
+     * 根据产品id和需求id查找需求
+     * @param productId 产品id
+     * @param storyId 需求id
+     * @return 需求
+     */
+    List<Story> getStoryByStoryId(Integer productId, Integer storyId);
 }
