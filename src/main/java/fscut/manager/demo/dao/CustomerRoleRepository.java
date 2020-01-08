@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 public interface CustomerRoleRepository extends JpaRepository<CustomerRole, CustomerRoleUPK> {
 
@@ -23,4 +24,10 @@ public interface CustomerRoleRepository extends JpaRepository<CustomerRole, Cust
     @Transactional
     @Query(value = "delete from customer_role where customer_id = ?1", nativeQuery = true)
     void deleteRoleByCustomerId(Integer customerId);
+
+    @Query(value = "select distinct customer_id from customer_role where role_id = 6", nativeQuery = true)
+    List<Integer> findAllAdmins();
+
+    @Query(value = "select distinct customer_id from customer_role where role_id = 5", nativeQuery = true)
+    List<Integer> findAllManagers();
 }

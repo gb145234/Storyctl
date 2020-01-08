@@ -37,4 +37,6 @@ public interface CustomerService {
     Optional<Customer> createCustomer(CustomerDTO customerDTO) throws CustomerAlreadyExitsException;
 
     Integer updateCustomer(String password, String username);
+
+    List<String> getAdmins();
 }

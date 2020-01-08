@@ -10,7 +10,7 @@ import fscut.manager.demo.service.CustomerService;
 import fscut.manager.demo.vo.CustomerAuthVO;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,7 +65,7 @@ public class CustomerController {
     }
 
     @PostMapping("addToProduct")
-    @RequiresRoles("manager")
+    @RequiresRoles(value={"admin","manager"}, logical = Logical.OR)
     public ResponseEntity<CustomerRole> addToProduct(@RequestBody CustomerAuthVO customerAuthVO){
         CustomerRole customerRole = customerService.addToProduct(customerAuthVO);
         return ResponseEntity.ok(customerRole);
@@ -94,12 +94,12 @@ public class CustomerController {
 
     @PostMapping("updateCustomer")
     @RequiresRoles("admin")
-    public ResponseEntity updateCustomer(String password, String username) {
+    public ResponseEntity<Integer> updateCustomer(String password, String username) {
         Integer res = customerService.updateCustomer(password, username);
-        if (res == 1) {
-            return ResponseEntity.ok(res);
+        if (res != 1) {
+            return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
         }
-        return ResponseEntity.status(401);
+        return ResponseEntity.ok(res);
     }
 
 }

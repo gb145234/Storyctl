@@ -29,15 +29,19 @@ public class WebSocketServer {
         this.session = session;
         this.username = JwtUtils.getUsername(token);
         webSocketMap.put(username, this);
-        log.info(username + " has login,有新的连接，总数：{}, 用户{}已登录", webSocketMap.size(), username);
+        Integer unreadMessageNum = messageService.getUnreadMessageNum(username);
+        if (unreadMessageNum != 0) {
+            sendInfo("您共有" + unreadMessageNum + "条消息未读", username);
+        }
+        log.info(username + " has login,有新的连接，总数：{}", webSocketMap.size());
     }
 
     @OnClose
     public void onClose() {
         if (username != null) {
             webSocketMap.remove(username);
+            log.info("连接断开，总数：{}, 用户{}已断开", webSocketMap.size(), username);
         }
-        log.info("连接断开，总数：{}, 用户{}已断开", webSocketMap.size(), username);
     }
 
     @OnMessage
@@ -58,7 +62,7 @@ public class WebSocketServer {
         }
     }
 
-    public void sendInfo(Object message, String username) {
+    public void  sendInfo(Object message, String username) {
         webSocketMap.get(username).sendMessage(message);
         log.info("向{}发送了消息：{}", username, message);
     }

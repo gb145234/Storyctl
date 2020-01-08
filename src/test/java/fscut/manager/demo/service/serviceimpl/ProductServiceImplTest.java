@@ -20,7 +20,7 @@ public class ProductServiceImplTest {
 
     @Test
     public void testShowProductList() {
-        List<Product> products = productService.showProductList();
+        List<Product> products = productService.showProductList(1);
         Assert.assertNotEquals(0, products.size());
     }
 

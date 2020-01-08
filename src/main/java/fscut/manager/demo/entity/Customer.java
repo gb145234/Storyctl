@@ -15,6 +15,7 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @JsonView(SimpleView.class)
     private Integer id;
 
     @JsonView(SimpleView.class)

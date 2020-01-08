@@ -27,4 +27,16 @@ public class WebConfiguration extends WebMvcConfigurationSupport{
 		));
 		configurer.setDefaultTimeout(30000);
 	}
+
+	/**
+	 * 使用swagger2所需配置
+	 * @param registry
+	 */
+	@Override
+	protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+		registry.addResourceHandler("swagger-ui.html")
+				.addResourceLocations("classpath:/META-INF/resources/");
+		registry.addResourceHandler("/webjars/**")
+				.addResourceLocations("classpath:/META-INF/resources/webjars/");
+	}
 }

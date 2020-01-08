@@ -8,10 +8,10 @@ import java.util.List;
 
 public interface ProductService {
     /**
-     * 展示产品列表
+     * 根据用户id展示产品列表
      * @return 产品列表
      */
-    List<Product> showProductList();
+    List<Product> showProductList(Integer customerId);
 
     /**
      * 增加产品

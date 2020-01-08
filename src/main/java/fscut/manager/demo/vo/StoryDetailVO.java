@@ -13,12 +13,14 @@ public class StoryDetailVO {
 
     private Integer productId;
     private Integer storyId;
+    private Boolean editable;
     private Story story;
     private List<OneTimeDetail> details;
 
-    public StoryDetailVO(Integer productId, Integer storyId){
+    public StoryDetailVO(Integer productId, Integer storyId,Boolean editable){
         this.productId = productId;
         this.storyId = storyId;
+        this.editable = editable;
         this.details = new ArrayList<>();
     }
 

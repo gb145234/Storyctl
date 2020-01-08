@@ -11,10 +11,10 @@ import fscut.manager.demo.service.CustomerService;
 import fscut.manager.demo.vo.CustomerAuthVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -118,6 +118,16 @@ public class CustomerServiceImpl implements CustomerService {
     public Integer updateCustomer(String password, String username) {
         Integer userId = customerRepository.getIdByUsername(username);
         return customerRepository.updateCustomerPassword(password, userId);
+    }
+
+    @Override
+    public List<String> getAdmins() {
+        List<String> adminList = new ArrayList<>();
+        List<Integer> adminIds = customerRoleRepository.findAllAdmins();
+        for (Integer adminId : adminIds) {
+            adminList.add(customerRepository.getUsernameById(adminId));
+        }
+        return adminList;
     }
 
 }

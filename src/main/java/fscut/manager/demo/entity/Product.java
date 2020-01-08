@@ -17,4 +17,12 @@ public class Product {
 
     @Column(name = "product_name", nullable = false)
     private String productName;
+
+    public Product(Integer id, String productName) {
+        this.id = id;
+        this.productName = productName;
+    }
+
+    public Product() {
+    }
 }

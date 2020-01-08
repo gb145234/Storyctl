@@ -6,14 +6,32 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 import fscut.manager.demo.entity.UPK.StoryUPK;
 import fscut.manager.demo.enums.StoryStatusEnum;
-import lombok.Data;
+
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Index;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Date;
 
 @Entity
+//@Indexed
+//@AnalyzerDef(name = "customAnalyzer",
+//        tokenizer = @TokenizerDef(factory = NGramTokenizerFactory.class, params = {
+//                @org.hibernate.search.annotations.Parameter(name = "minGramSize", value = "1"),
+//                @Parameter(name = "maxGramSize", value = "40")
+//        }),
+//        filters = {
+//                @TokenFilterDef(factory = StopFilterFactory.class, params = {
+//                        @Parameter(name = "words", value = "org/apache/lucene/analysis/cn/smart/stopwords.txt"),
+//                        @Parameter(name = "ignoreCase", value = "true")
+//                })
+//        },
+//        charFilters = {
+//                @CharFilterDef(factory = HTMLStripCharFilterFactory.class)
+//        }
+//)
 @Table(name = "story")
 @DynamicUpdate
 @JsonInclude(Include.NON_NULL)
@@ -66,6 +84,7 @@ public class Story implements Serializable {
     private java.util.Date updateTime;
 
     public Story() {
+        // do nothing because of constructor method
     }
 
     @JsonView({Story.StoryListSimpleView.class})
@@ -89,7 +108,7 @@ public class Story implements Serializable {
         return putTime;
     }
 
-    //@JsonView({Story.StoryListSimpleView.class})
+    @JsonView({Story.StoryListSimpleView.class})
     public void setPutTime(Date putTime) {
         this.putTime = putTime;
     }

@@ -10,6 +10,8 @@ import java.util.List;
 @Data
 public class CustomerListDTO implements Serializable {
 
+    private static final long serialVersionUID = 2350506099028192504L;
+
     @JsonView(Customer.SimpleView.class)
     private List<Customer> developer;
 

@@ -15,6 +15,8 @@ import fscut.manager.demo.util.CsvUtils;
 import fscut.manager.demo.util.websocket.WebSocketServer;
 import fscut.manager.demo.vo.StoryDetailVO;
 import fscut.manager.demo.vo.StoryVO;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,6 +40,7 @@ import java.util.Optional;
 
 @RestController
 @CrossOrigin
+@Api(value = "需求controller",tags = {"用户操作接口"})
 @RequestMapping("story")
 public class StoryController {
 
@@ -124,6 +127,7 @@ public class StoryController {
         return ResponseEntity.ok(updatedStory);
     }
 
+    @ApiOperation(value = "获取产品所有需求",notes = "验证用户权限")
     @GetMapping("product/{id}")
     public ResponseEntity<Page<Story>> showProductStories(@PathVariable("id") Integer id, Integer page, Integer size) {
         userService.userAllowed(id);

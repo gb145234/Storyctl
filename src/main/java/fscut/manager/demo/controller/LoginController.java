@@ -55,10 +55,13 @@ public class LoginController {
             String newToken = userService.generateJwtToken(user.getUsername());
             response.setHeader("token", newToken);
 
-            Integer unreadMessageNum = messageService.getUnreadMessageNum(user.getUsername());
-            if (unreadMessageNum != 0) {
-                //webSocketServer.sendInfo("您共有" + unreadMessageNum + "条消息未读", user.getUsername());
-            }
+            ////System.out.println(user.getUsername());
+            //Integer unreadMessageNum = messageService.getUnreadMessageNum(user.getUsername());
+            //System.out.println(user.getUsername());
+            //if (unreadMessageNum != 0) {
+            //    webSocketServer.sendInfo("您共有" + unreadMessageNum + "条消息未读", user.getUsername());
+            //}
+            System.out.println(user.getUsername());
             Integer userId = customerService.getIdByUsername(user.getUsername());
             String roleCode = customerService.getRoleCodeByUserId(userId);
             return ResponseEntity.ok(roleCode);
@@ -84,7 +87,9 @@ public class LoginController {
 
     @GetMapping("list")
     public ResponseEntity<List<Product>> showProductList() {
-        List<Product> products = productService.showProductList();
+        Subject subject = SecurityUtils.getSubject();
+        UserDto userDto = (UserDto) subject.getPrincipal();
+        List<Product> products = productService.showProductList(userDto.getUserId());
         return ResponseEntity.ok(products);
     }
 }
