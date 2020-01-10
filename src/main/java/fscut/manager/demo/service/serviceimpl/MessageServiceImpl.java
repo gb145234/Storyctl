@@ -67,13 +67,13 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void readMessage(Integer messageId, Integer customerId) {
-        messageRepository.readMessage(messageId, customerId);
+    public Integer readMessage(Integer messageId, Integer customerId) {
+        return messageRepository.readMessage(messageId, customerId);
     }
 
     @Override
-    public void readAll(Integer customerId) {
-        messageRepository.readAll(customerId);
+    public Integer readAll(Integer customerId) {
+        return messageRepository.readAll(customerId);
     }
 
     @Override

@@ -27,27 +27,29 @@ public interface MessageRepository extends JpaRepository<Message,Integer> {
      * @param customerId 用户id
      * @return 消息id列表
      */
-    @Query(value = "select new fscut.manager.demo.vo.MessageVO(m.messageId, m.storyUPK, m.content, m.createdTime, cm.customerId, cm.checked) from CustomerMessage cm ,Message m where cm.messageId = m.messageId and cm.customerId = :customerId")
+    @Query(value = "select new fscut.manager.demo.vo.MessageVO(m.messageId, m.storyUPK, m.content, m.createdTime, cm.customerId, cm.checked) from CustomerMessage cm ,Message m where cm.messageId = m.messageId and cm.customerId = :customerId order by m.messageId desc")
     List<MessageVO> getMessageByCustomerId(@Param("customerId") Integer customerId);
 
     /**
      * 根据消息id和用户id设置消息已读
      * @param messageId 消息id
      * @param customerId 用户id
+     * @return 读取条数
      */
     @Modifying
     @Transactional(rollbackOn = Exception.class)
     @Query(value = "update customer_message set checked = 1 where message_id = ?1 and customer_id = ?2", nativeQuery = true)
-    void readMessage(Integer messageId, Integer customerId);
+    Integer readMessage(Integer messageId, Integer customerId);
 
     /**
      * 读取某个用户所有未读消息
      * @param customerId 用户id
+     * @return 读取所有消息条数
      */
     @Modifying
     @Transactional(rollbackOn = Exception.class)
     @Query(value = "update customer_message set checked = 1 where customer_id = ?1", nativeQuery = true)
-    void readAll(Integer customerId);
+    Integer readAll(Integer customerId);
 
     /**
      * 根据用户id查找未读消息条数

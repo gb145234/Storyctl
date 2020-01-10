@@ -113,13 +113,13 @@ public class ShiroConfig {
     protected ShiroFilterChainDefinition shiroFilterChainDefinition() {
         DefaultShiroFilterChainDefinition chainDefinition = new DefaultShiroFilterChainDefinition();
         chainDefinition.addPathDefinition("/login", "noSessionCreation,anon");
-        chainDefinition.addPathDefinition("/logout", "noSessionCreation,anon");
+        chainDefinition.addPathDefinition("/logout", "noSessionCreation,authcToken");
         chainDefinition.addPathDefinition("/list", "noSessionCreation,authcToken");
         chainDefinition.addPathDefinition("/image/**", "anon");
         chainDefinition.addPathDefinition("/customer/**", "noSessionCreation,authcToken,anyRole[partner,admin,manager]");
-        chainDefinition.addPathDefinition("/story/**", "noSessionCreation,authcToken,anyRole[partner,manager,admin]");
+        chainDefinition.addPathDefinition("/story/**", "noSessionCreation,authcToken,anyRole[partner,manager,admin,ordinary]");
         chainDefinition.addPathDefinition("/product/**", "noSessionCreation,authcToken,anyRole[manager,admin]");
-        chainDefinition.addPathDefinition("/message/**", "noSessionCreation,authcToken,anyRole[manager,partner,admin]");
+        chainDefinition.addPathDefinition("/message/**", "noSessionCreation,authcToken,anyRole[manager,partner,admin,ordinary]");
         chainDefinition.addPathDefinition("/**", "noSessionCreation");
         return chainDefinition;
     }

@@ -38,5 +38,18 @@ public class WebConfiguration extends WebMvcConfigurationSupport{
 				.addResourceLocations("classpath:/META-INF/resources/");
 		registry.addResourceHandler("/webjars/**")
 				.addResourceLocations("classpath:/META-INF/resources/webjars/");
+		registry.addResourceHandler("/**").addResourceLocations("classpath:/public/");
+		String path = System.getProperty("user.dir")+"\\src\\main\\resources\\public\\upload\\";
+		registry.addResourceHandler("/picture/**").addResourceLocations("file:"+ path);
 	}
+
+
+	//@Override
+	//protected void addInterceptors(InterceptorRegistry registry) {
+	//	registry.addInterceptor(new MyInterceptor()).addPathPatterns("/**").
+	//			excludePathPatterns("/emp/toLogin","/emp/login","/js/**","/css/**","/images/**");
+	//	super.addInterceptors(registry);
+	//}
+
+
 }

@@ -1,6 +1,7 @@
 package fscut.manager.demo.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import fscut.manager.demo.config.IpConfiguration;
 import fscut.manager.demo.dto.CustomerListDTO;
 import fscut.manager.demo.dto.UserDto;
 import fscut.manager.demo.entity.Customer;
@@ -17,6 +18,7 @@ import fscut.manager.demo.vo.StoryDetailVO;
 import fscut.manager.demo.vo.StoryVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,15 +26,20 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +49,7 @@ import java.util.Optional;
 @CrossOrigin
 @Api(value = "需求controller",tags = {"用户操作接口"})
 @RequestMapping("story")
+@Slf4j
 public class StoryController {
 
     @Resource
@@ -58,6 +66,9 @@ public class StoryController {
 
     @Resource
     private WebSocketServer webSocketServer;
+
+    @Resource
+    private IpConfiguration ipConfiguration;
 
     @PostMapping("newStory")
     public ResponseEntity newStory(@RequestBody StoryVO storyVO){
@@ -215,6 +226,46 @@ public class StoryController {
         return ResponseEntity.ok().headers(headers).contentLength(file.length()).
                 contentType(MediaType.parseMediaType("application/octet-stream")).
                 body(new FileSystemResource(file));
+    }
+
+    @RequestMapping("/upload")
+    public ResponseEntity image(MultipartFile file){
+        InetAddress address = null;
+        try {
+            address = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            log.info(e.getMessage());
+        }
+        if (file.isEmpty()){
+            return new ResponseEntity<>("文件不可为空", HttpStatus.BAD_REQUEST);
+        }
+        String filaName = file.getOriginalFilename();
+        filaName = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_" + filaName;
+        String dirPath = System.getProperty("user.dir") + "\\src\\main\\resources\\public\\upload\\";
+        String hostAddress = null;
+        if (address != null) {
+            hostAddress = address.getHostAddress();
+        }
+        if (hostAddress == null) {
+            return new ResponseEntity<>("ip地址不能为空！", HttpStatus.BAD_REQUEST);
+        }
+        String url = "http://" + hostAddress + ":" + ipConfiguration.getPort() + "/picture/";
+        File filePath = new File(dirPath);
+        if(!filePath.exists()) {
+            boolean mkdir = filePath.mkdir();
+            if (!mkdir) {
+                return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            }
+        }
+        try {
+            file.transferTo(new File(dirPath + filaName));
+            log.info(url + filaName);
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+        }
+        String res = url + filaName;
+        return ResponseEntity.ok(res);
     }
 
 }

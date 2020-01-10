@@ -10,12 +10,14 @@ public interface MessageService {
     /**
      * 增加需求创建的消息
      * @param story 需求
+     * @return 消息
      */
     Message addCreateMessage(Story story);
 
     /**
      * 增加需求修改的消息
      * @param story 需求
+     * @return 消息
      */
     Message addUpdateMessage(Story story);
 
@@ -23,14 +25,15 @@ public interface MessageService {
      * 读消息
      * @param messageId 消息id
      * @param customerId 用户id
+     * @return 读取条数
      */
-    void readMessage(Integer messageId, Integer customerId);
+    Integer readMessage(Integer messageId, Integer customerId);
 
     /**
      * 读取用户所有未读消息
-     * @param customerId
+     * @param customerId 用户id
      */
-    void readAll(Integer customerId);
+    Integer readAll(Integer customerId);
 
     /**
      * 根据用户id获得未读消息数量
@@ -50,6 +53,7 @@ public interface MessageService {
      * 删除消息
      * @param messageId 消息id
      * @param customerId 用户id
+     * @return 删除条数
      */
     Integer deleteMessage(Integer messageId, Integer customerId);
 

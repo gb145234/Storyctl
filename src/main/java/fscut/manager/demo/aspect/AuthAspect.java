@@ -45,9 +45,9 @@ public class AuthAspect {
         }
         System.out.println(userId);
         System.out.println(productId);
-        if(customerRepository.findRoleByCustomerIdAndProductId(userId, productId) == null){
-            throw new UnauthorizedException();
-        }
+        //if(customerRepository.findRoleByCustomerIdAndProductId(userId, productId) == null){
+        //    throw new UnauthorizedException();
+        //}
     }
 
 }

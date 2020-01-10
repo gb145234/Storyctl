@@ -17,6 +17,12 @@ public class CustomerRoleUPK implements Serializable{
 
     private Integer productId;
 
+    public CustomerRoleUPK(Integer customerId, Integer roleId, Integer productId) {
+        this.customerId = customerId;
+        this.roleId = roleId;
+        this.productId = productId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

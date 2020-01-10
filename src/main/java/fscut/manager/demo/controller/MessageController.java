@@ -2,7 +2,6 @@ package fscut.manager.demo.controller;
 
 
 import fscut.manager.demo.dto.UserDto;
-import fscut.manager.demo.entity.Message;
 import fscut.manager.demo.service.CustomerService;
 import fscut.manager.demo.service.MessageService;
 import fscut.manager.demo.vo.MessageVO;
@@ -41,17 +40,17 @@ public class MessageController{
      }
 
      @GetMapping("readMessage")
-     public ResponseEntity<Message> readMessage(Integer messageId, String username) {
+     public ResponseEntity<Integer> readMessage(Integer messageId, String username) {
          Integer customerId = customerService.getIdByUsername(username);
-         messageService.readMessage(messageId, customerId);
-          return ResponseEntity.ok(null);
+          Integer res = messageService.readMessage(messageId, customerId);
+          return ResponseEntity.ok(res);
      }
 
      @GetMapping("readAll")
-     public ResponseEntity<Message> readAll(String username) {
+     public ResponseEntity<Integer> readAll(String username) {
           Integer customerId = customerService.getIdByUsername(username);
-          messageService.readAll(customerId);
-          return ResponseEntity.ok(null);
+          Integer res = messageService.readAll(customerId);
+          return ResponseEntity.ok(res);
      }
 
      @DeleteMapping("deleteMessage")

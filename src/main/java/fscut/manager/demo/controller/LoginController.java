@@ -3,10 +3,8 @@ package fscut.manager.demo.controller;
 import fscut.manager.demo.dto.UserDto;
 import fscut.manager.demo.entity.Product;
 import fscut.manager.demo.service.CustomerService;
-import fscut.manager.demo.service.MessageService;
 import fscut.manager.demo.service.ProductService;
 import fscut.manager.demo.service.serviceimpl.UserService;
-import fscut.manager.demo.util.websocket.WebSocketServer;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -33,16 +31,10 @@ public class LoginController {
     private UserService userService;
 
     @Resource
-    private MessageService messageService;
-
-    @Resource
     private ProductService productService;
 
     @Resource
     private CustomerService customerService;
-
-    @Resource
-    private WebSocketServer webSocketServer;
 
     @PostMapping(value = "/login")
     public ResponseEntity<String> login(@RequestBody UserDto loginInfo, HttpServletResponse response) {
@@ -54,14 +46,8 @@ public class LoginController {
             UserDto user = (UserDto) subject.getPrincipal();
             String newToken = userService.generateJwtToken(user.getUsername());
             response.setHeader("token", newToken);
+            System.out.println("login:" + newToken);
 
-            ////System.out.println(user.getUsername());
-            //Integer unreadMessageNum = messageService.getUnreadMessageNum(user.getUsername());
-            //System.out.println(user.getUsername());
-            //if (unreadMessageNum != 0) {
-            //    webSocketServer.sendInfo("您共有" + unreadMessageNum + "条消息未读", user.getUsername());
-            //}
-            System.out.println(user.getUsername());
             Integer userId = customerService.getIdByUsername(user.getUsername());
             String roleCode = customerService.getRoleCodeByUserId(userId);
             return ResponseEntity.ok(roleCode);
@@ -75,7 +61,7 @@ public class LoginController {
      * 退出登录
      */
     @GetMapping(value = "/logout")
-    public ResponseEntity<Void> logout() {
+    public ResponseEntity logout() {
         Subject subject = SecurityUtils.getSubject();
         if (subject.getPrincipals() != null) {
             UserDto user = (UserDto) subject.getPrincipals().getPrimaryPrincipal();

@@ -16,18 +16,23 @@ public interface CustomerRoleRepository extends JpaRepository<CustomerRole, Cust
     Integer getRoleIdByRoleName( String roleName);
 
     @Modifying
-    @Transactional
+    @Transactional(rollbackOn = Exception.class)
     @Query(value = "delete from customer_role where customer_id = ?1 and product_id = ?2", nativeQuery = true)
     Integer deleteFromProduct(Integer customerId, Integer productId);
 
     @Modifying
-    @Transactional
+    @Transactional(rollbackOn = Exception.class)
     @Query(value = "delete from customer_role where customer_id = ?1", nativeQuery = true)
-    void deleteRoleByCustomerId(Integer customerId);
+    Integer deleteRoleByCustomerId(Integer customerId);
 
     @Query(value = "select distinct customer_id from customer_role where role_id = 6", nativeQuery = true)
     List<Integer> findAllAdmins();
 
-    @Query(value = "select distinct customer_id from customer_role where role_id = 5", nativeQuery = true)
-    List<Integer> findAllManagers();
+    @Modifying
+    @Transactional(rollbackOn = Exception.class)
+    @Query(value = "update CustomerRole set role_id = ?1 where customer_id = ?2 and product_id = ?3")
+    Integer updateCustomerRole(Integer roleId, Integer customerId, Integer productId);
+
+    @Query(value = "select new fscut.manager.demo.entity.UPK.CustomerRoleUPK(cr.customerRoleUPK.customerId,cr.customerRoleUPK.roleId,cr.customerRoleUPK.productId) from CustomerRole cr where cr.customerRoleUPK.customerId = :customerId and cr.customerRoleUPK.productId = :productId")
+    CustomerRoleUPK findByCustomerIdAndProductId(@Param("customerId") Integer customerId, @Param("productId") Integer productId);
 }

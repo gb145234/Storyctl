@@ -3,6 +3,7 @@ package fscut.manager.demo.service;
 import fscut.manager.demo.dto.CustomerDTO;
 import fscut.manager.demo.entity.Customer;
 import fscut.manager.demo.entity.CustomerRole;
+import fscut.manager.demo.entity.UPK.CustomerRoleUPK;
 import fscut.manager.demo.exception.CustomerAlreadyExitsException;
 import fscut.manager.demo.exception.CustomerNotExitsException;
 import fscut.manager.demo.vo.CustomerAuthVO;
@@ -18,7 +19,7 @@ public interface CustomerService {
 
     Integer deleteFromProduct(Integer customerId, Integer productId);
 
-    void deleteCustomer(String username) throws CustomerNotExitsException;
+    Integer deleteCustomer(String username) throws CustomerNotExitsException;
 
     void assignRole(CustomerRole customerRole);
 
@@ -39,4 +40,8 @@ public interface CustomerService {
     Integer updateCustomer(String password, String username);
 
     List<String> getAdmins();
+
+    Integer updateCustomerRole(CustomerAuthVO customerAuthVO);
+
+    CustomerRoleUPK getCustomerRoleByCusomerIdAndProductId(CustomerAuthVO customerAuthVO);
 }

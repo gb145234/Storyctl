@@ -5,7 +5,6 @@ import fscut.manager.demo.dao.StoryDetailRepository;
 import fscut.manager.demo.dao.StoryEditionRepository;
 import fscut.manager.demo.dao.StoryRepository;
 import fscut.manager.demo.dto.CustomerListDTO;
-import fscut.manager.demo.dto.StoryDetailDTO;
 import fscut.manager.demo.dto.UserDto;
 import fscut.manager.demo.entity.Customer;
 import fscut.manager.demo.entity.Story;
@@ -16,29 +15,19 @@ import fscut.manager.demo.enums.StoryStatusEnum;
 import fscut.manager.demo.service.StoryService;
 import fscut.manager.demo.vo.StoryDetailVO;
 import fscut.manager.demo.vo.StoryVO;
-import org.apache.lucene.search.Query;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
-import org.hibernate.search.jpa.FullTextEntityManager;
-import org.hibernate.search.jpa.FullTextQuery;
-import org.hibernate.search.jpa.Search;
-import org.hibernate.search.query.dsl.QueryBuilder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,8 +45,6 @@ public class StoryServiceImpl implements StoryService {
 
     @Resource
     private StoryDetailRepository storyDetailRepository;
-
-    private EntityManagerFactory entityManagerFactory;
 
     @Override
     @Transactional(rollbackOn = Exception.class)
@@ -95,12 +82,13 @@ public class StoryServiceImpl implements StoryService {
         Integer storyId = storyUPK.getStoryId();
 
         StoryUPK newStoryUPK = storyEditionRepository.findStoryEditionsByProductIdAndStoryId(productId,storyId).get(0);
-
         List<StoryDetail> storyDetails = storyDetailRepository.getStoryDetailsByProductIdAndStoryId(productId, storyId);
-        if(storyDetails.size() == 0){
-            Optional<Story> story = storyRepository.findById(newStoryUPK);
+        if(storyDetails.isEmpty()){
+            Optional<Story> story = storyRepository.findById(storyUPK);
             StoryDetailVO result = new StoryDetailVO();
-            result.setStory(story.get());
+            if (story.isPresent()) {
+                result.setStory(story.get());
+            }
             result.setEditable(true);
             return result;
         }
@@ -113,7 +101,6 @@ public class StoryServiceImpl implements StoryService {
                 oneTimeDetailsNum++;
             }
         }
-        System.out.println(oneTimeDetailsNum);
         int[] contents = new int[oneTimeDetailsNum];
         for(int i = 0; i < oneTimeDetailsNum; i++){
             contents[i] = 0;
@@ -129,13 +116,15 @@ public class StoryServiceImpl implements StoryService {
 
 
         StoryDetailVO result = new StoryDetailVO(productId, storyId, false);
-        if(newStoryUPK.getEdition().equals(storyUPK.getEdition())){
+        if(storyUPK.getEdition().equals(newStoryUPK.getEdition())){
             result.setEditable(true);
         }
-        Optional<Story> story = storyRepository.findById(newStoryUPK);
-        result.setStory(story.get());
+        Optional<Story> story = storyRepository.findById(storyUPK);
+        if (story.isPresent()) {
+            result.setStory(story.get());
+        }
         StoryDetailVO.OneTimeDetail[] oneTimeDetailsArray = new StoryDetailVO.OneTimeDetail[oneTimeDetailsNum];
-        for(int i = 0, j =0; i < oneTimeDetailsNum; i++){
+        for(int i = 0, j = 0; i < oneTimeDetailsNum; i++) {
             oneTimeDetailsArray[i] = result.createOne(storyDetails.get(j).getEditTime(),storyDetails.get(j).getEditName());
             StoryDetailVO.Content[] contentArray = new StoryDetailVO.Content[contents[i]];
             for(int m = 0; m < contents[i]; m++, j++) {
@@ -150,7 +139,7 @@ public class StoryServiceImpl implements StoryService {
 
 
     private void getDifferenceBetween2Stories(Story newStory, Story lastStory) {
-        if (!compareString(newStory.getConclusion(), lastStory.getConclusion())) {
+        if (Boolean.FALSE.equals(compareString(newStory.getConclusion(), lastStory.getConclusion()))) {
             StoryDetail result = new StoryDetail();
             result.setProductId(newStory.getStoryUPK().getProductId());
             result.setStoryId(newStory.getStoryUPK().getStoryId());
@@ -161,7 +150,7 @@ public class StoryServiceImpl implements StoryService {
             result.setModified(newStory.getConclusion());
             storyDetailRepository.save(result);
         }
-        if (!compareString(newStory.getDescription(), lastStory.getDescription())) {
+        if (Boolean.FALSE.equals(compareString(newStory.getDescription(), lastStory.getDescription()))) {
             StoryDetail result = new StoryDetail();
             result.setProductId(newStory.getStoryUPK().getProductId());
             result.setStoryId(newStory.getStoryUPK().getStoryId());
@@ -172,7 +161,7 @@ public class StoryServiceImpl implements StoryService {
             result.setModified(newStory.getDescription());
             storyDetailRepository.save(result);
         }
-        if (!compareInteger(newStory.getDesignId(),lastStory.getDesignId())) {
+        if (Boolean.FALSE.equals(compareInteger(newStory.getDesignId(),lastStory.getDesignId()))) {
             StoryDetail result = new StoryDetail();
             result.setProductId(newStory.getStoryUPK().getProductId());
             result.setStoryId(newStory.getStoryUPK().getStoryId());
@@ -183,7 +172,7 @@ public class StoryServiceImpl implements StoryService {
             result.setModified(customerRepository.findRealNameByCustomerId(newStory.getDesignId()));
             storyDetailRepository.save(result);
         }
-        if (!compareInteger(newStory.getDevId(), lastStory.getDevId())) {
+        if (Boolean.FALSE.equals(compareString(newStory.getDevId(), lastStory.getDevId()))) {
             StoryDetail result = new StoryDetail();
             result.setProductId(newStory.getStoryUPK().getProductId());
             result.setStoryId(newStory.getStoryUPK().getStoryId());
@@ -235,7 +224,7 @@ public class StoryServiceImpl implements StoryService {
             result.setEditName(customerRepository.findRealNameByCustomerId(newStory.getEditId()));
             result.setAttribute("需求状态");
             result.setPrevious(StoryStatusEnum.getMessage(lastStory.getStoryStatus()));
-            result.setModified(StoryStatusEnum.getMessage(lastStory.getStoryStatus()));
+            result.setModified(StoryStatusEnum.getMessage(newStory.getStoryStatus()));
             storyDetailRepository.save(result);
         }
         if (Boolean.FALSE.equals(compareString(newStory.getTestTime(), lastStory.getTestTime()))) {
