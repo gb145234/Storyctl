@@ -141,7 +141,7 @@ public class CsvUtils {
      * @param inputString 富文本字符串
      * @return 纯文本
      */
-    private static String removeHtmlTag(String inputString) {
+    public static String removeHtmlTag(String inputString) {
         if (inputString == null) {
             return null;
         }

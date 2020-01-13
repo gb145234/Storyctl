@@ -1,10 +1,20 @@
 package fscut.manager.demo.config;
 
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
+import fscut.manager.demo.entity.Customer;
+import fscut.manager.demo.entity.Story;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
 import org.springframework.web.servlet.config.annotation.*;
 
@@ -42,14 +52,5 @@ public class WebConfiguration extends WebMvcConfigurationSupport{
 		String path = System.getProperty("user.dir")+"\\src\\main\\resources\\public\\upload\\";
 		registry.addResourceHandler("/picture/**").addResourceLocations("file:"+ path);
 	}
-
-
-	//@Override
-	//protected void addInterceptors(InterceptorRegistry registry) {
-	//	registry.addInterceptor(new MyInterceptor()).addPathPatterns("/**").
-	//			excludePathPatterns("/emp/toLogin","/emp/login","/js/**","/css/**","/images/**");
-	//	super.addInterceptors(registry);
-	//}
-
 
 }

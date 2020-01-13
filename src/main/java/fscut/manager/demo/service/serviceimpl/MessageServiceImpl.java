@@ -4,7 +4,9 @@ import fscut.manager.demo.dao.CustomerRepository;
 import fscut.manager.demo.dao.MessageRepository;
 import fscut.manager.demo.entity.Message;
 import fscut.manager.demo.entity.Story;
+import fscut.manager.demo.service.CustomerService;
 import fscut.manager.demo.service.MessageService;
+import fscut.manager.demo.util.websocket.WebSocketServer;
 import fscut.manager.demo.vo.MessageVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,12 @@ public class MessageServiceImpl implements MessageService {
 
     @Resource
     private MessageRepository messageRepository;
+
+    @Resource
+    private WebSocketServer webSocketServer;
+
+    @Resource
+    private CustomerService customerService;
 
     @Override
     public Message addCreateMessage(Story story) {
@@ -55,6 +63,21 @@ public class MessageServiceImpl implements MessageService {
         return message;
     }
 
+    @Override
+    public void sendMessage(Story story, Message message) {
+        Integer designId = story.getDesignId();
+        Integer devId = story.getDevId();
+        Integer testId = story.getTestId();
+        if (designId != null && WebSocketServer.webSocketMap.get(customerService.getUsernameById(designId)) != null) {
+            webSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(designId));
+        }
+        if (devId != null && WebSocketServer.webSocketMap.get(customerService.getUsernameById(devId)) != null) {
+            webSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(devId));
+        }
+        if (testId != null && WebSocketServer.webSocketMap.get(customerService.getUsernameById(testId)) != null) {
+            webSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(testId));
+        }
+    }
 
     @Override
     public List<MessageVO> getMessage(Integer customerId) {

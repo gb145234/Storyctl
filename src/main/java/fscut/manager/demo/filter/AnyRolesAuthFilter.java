@@ -24,8 +24,9 @@ public class AnyRolesAuthFilter extends AuthorizationFilter {
     @Override
     protected boolean isAccessAllowed(ServletRequest servletRequest, ServletResponse servletResponse, Object mappedValue) throws Exception {
     	Boolean afterFiltered = (Boolean)(servletRequest.getAttribute("anyRolesAuthFilter.FILTERED"));
-        if( BooleanUtils.isTrue(afterFiltered))
-        	return true;
+        if( BooleanUtils.isTrue(afterFiltered)) {
+            return true;
+        }
 
         Subject subject = getSubject(servletRequest, servletResponse);
         String[] roles = (String[]) mappedValue;

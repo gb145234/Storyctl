@@ -5,6 +5,7 @@ import fscut.manager.demo.entity.Product;
 import fscut.manager.demo.service.CustomerService;
 import fscut.manager.demo.service.ProductService;
 import fscut.manager.demo.service.serviceimpl.UserService;
+import io.swagger.annotations.*;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -22,6 +23,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
+@Api(value = "首页接口", tags = {"首页接口"})
 @RestController
 public class LoginController {
 
@@ -36,6 +38,7 @@ public class LoginController {
     @Resource
     private CustomerService customerService;
 
+    @ApiOperation(value = "用户登录",notes = "用户登录返回头里含有token")
     @PostMapping(value = "/login")
     public ResponseEntity<String> login(@RequestBody UserDto loginInfo, HttpServletResponse response) {
         Subject subject = SecurityUtils.getSubject();
@@ -46,14 +49,13 @@ public class LoginController {
             UserDto user = (UserDto) subject.getPrincipal();
             String newToken = userService.generateJwtToken(user.getUsername());
             response.setHeader("token", newToken);
-            System.out.println("login:" + newToken);
 
             Integer userId = customerService.getIdByUsername(user.getUsername());
             String roleCode = customerService.getRoleCodeByUserId(userId);
             return ResponseEntity.ok(roleCode);
         } catch (AuthenticationException e) {
             logger.error("User {} login fail, Reason:{}", loginInfo.getUsername(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
         }
     }
 
@@ -61,7 +63,7 @@ public class LoginController {
      * 退出登录
      */
     @GetMapping(value = "/logout")
-    public ResponseEntity logout() {
+    public ResponseEntity<Void> logout() {
         Subject subject = SecurityUtils.getSubject();
         if (subject.getPrincipals() != null) {
             UserDto user = (UserDto) subject.getPrincipals().getPrimaryPrincipal();
@@ -71,6 +73,8 @@ public class LoginController {
         return ResponseEntity.ok().build();
     }
 
+
+    @ApiOperation(value = "获取产品列表",notes = "根据用户所属产品返回对应产品列表")
     @GetMapping("list")
     public ResponseEntity<List<Product>> showProductList() {
         Subject subject = SecurityUtils.getSubject();

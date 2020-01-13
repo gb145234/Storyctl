@@ -1,14 +1,13 @@
 package fscut.manager.demo.service;
 
 import fscut.manager.demo.entity.Product;
-import fscut.manager.demo.exception.CustomerNoAuthorityException;
-
 import java.util.List;
 
 
 public interface ProductService {
     /**
      * 根据用户id展示产品列表
+     * @param customerId 用户id
      * @return 产品列表
      */
     List<Product> showProductList(Integer customerId);

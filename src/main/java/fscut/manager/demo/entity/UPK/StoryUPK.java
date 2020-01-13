@@ -1,5 +1,7 @@
 package fscut.manager.demo.entity.UPK;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import fscut.manager.demo.entity.Story;
 import lombok.Data;
 import lombok.NonNull;
 
@@ -11,10 +13,13 @@ import java.io.Serializable;
 @Data
 public class StoryUPK implements Serializable{
 
+    @JsonView(Story.StorySimpleView.class)
     private Integer productId;
 
+    @JsonView(Story.StorySimpleView.class)
     private Integer storyId;
 
+    @JsonView(Story.StorySimpleView.class)
     private Integer edition;
 
     public StoryUPK() {
@@ -28,13 +33,21 @@ public class StoryUPK implements Serializable{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         StoryUPK storyUPK = (StoryUPK) o;
 
-        if (!productId.equals(storyUPK.productId)) return false;
-        if (!storyId.equals(storyUPK.storyId)) return false;
+        if (!productId.equals(storyUPK.productId)) {
+            return false;
+        }
+        if (!storyId.equals(storyUPK.storyId)) {
+            return false;
+        }
         return edition.equals(storyUPK.edition);
     }
 

@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
  */
 
 public class JWTShiroRealm extends AuthorizingRealm {
-	private final Logger log = LoggerFactory.getLogger(JWTShiroRealm.class);
 
     protected UserService userService;
 
@@ -41,8 +40,9 @@ public class JWTShiroRealm extends AuthorizingRealm {
         String token = jwtToken.getToken();
         
         UserDto user = userService.getJwtTokenInfo(JwtUtils.getUsername(token));
-        if(user == null)
+        if(user == null) {
             throw new AuthenticationException("token过期，请重新登录");
+        }
 
         return new SimpleAuthenticationInfo(user, user.getSalt(), "jwtRealm");
     }

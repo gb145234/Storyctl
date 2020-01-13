@@ -39,8 +39,9 @@ public class JwtAuthFilter extends AuthenticatingFilter {
     @Override
     protected boolean preHandle(ServletRequest request, ServletResponse response) throws Exception {
         HttpServletRequest httpServletRequest = WebUtils.toHttp(request);
-        if (httpServletRequest.getMethod().equals(RequestMethod.OPTIONS.name())) //对于OPTION请求做拦截，不做token校验
+        if (httpServletRequest.getMethod().equals(RequestMethod.OPTIONS.name())) {
             return false;
+        }
 
         return super.preHandle(request, response);
     }
@@ -53,11 +54,13 @@ public class JwtAuthFilter extends AuthenticatingFilter {
 
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
-        if(this.isLoginRequest(request, response))
+        if(this.isLoginRequest(request, response)) {
             return true;
+        }
         Boolean afterFiltered = (Boolean)(request.getAttribute("jwtShiroFilter.FILTERED"));
-        if( BooleanUtils.isTrue(afterFiltered))
+        if( BooleanUtils.isTrue(afterFiltered)) {
             return true;
+        }
 
         boolean allowed = false;
         try {
@@ -73,8 +76,9 @@ public class JwtAuthFilter extends AuthenticatingFilter {
     @Override
     protected AuthenticationToken createToken(ServletRequest servletRequest, ServletResponse servletResponse) {
         String jwtToken = getAuthzHeader(servletRequest);
-        if(StringUtils.isNotBlank(jwtToken)&&!JwtUtils.isTokenExpired(jwtToken))
+        if(StringUtils.isNotBlank(jwtToken)&&!JwtUtils.isTokenExpired(jwtToken)) {
             return new JWTToken(jwtToken);
+        }
 
         return null;
     }

@@ -38,23 +38,27 @@ public class ResponseHeaderAdvice implements ResponseBodyAdvice<Object> {
             String origin = request.getHeader("Origin");
             if(origin == null) {
                 String referer = request.getHeader("Referer");
-                if(referer != null)
+                if(referer != null) {
                     origin = referer.substring(0, referer.indexOf("/", 7));
+                }
             }
             response.setHeader("Access-Control-Allow-Origin", origin);
         }
 
         String allowHeaders = "Access-Control-Allow-Headers";
-        if(!response.containsHeader(allowHeaders))
+        if(!response.containsHeader(allowHeaders)) {
             response.setHeader(allowHeaders, request.getHeader(allowHeaders));
+        }
 
         String allowMethods = "Access-Control-Allow-Methods";
-        if(!response.containsHeader(allowMethods))
+        if(!response.containsHeader(allowMethods)) {
             response.setHeader(allowMethods, "GET,POST,OPTIONS,HEAD");
+        }
 
         String exposeHeaders = "access-control-expose-headers";
-        if(!response.containsHeader(exposeHeaders))
+        if(!response.containsHeader(exposeHeaders)) {
             response.setHeader(exposeHeaders, "token");
+        }
 
         return o;
     }

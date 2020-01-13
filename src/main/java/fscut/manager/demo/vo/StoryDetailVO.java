@@ -24,7 +24,7 @@ public class StoryDetailVO {
         this.details = new ArrayList<>();
     }
 
-    public StoryDetailVO(){
+    public StoryDetailVO() {
 
     }
 

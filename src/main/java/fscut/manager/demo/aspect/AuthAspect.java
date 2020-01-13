@@ -15,8 +15,8 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class AuthAspect {
 
     @Autowired
@@ -43,11 +43,9 @@ public class AuthAspect {
         if(args[0] instanceof Integer){
             productId = (Integer)args[0];
         }
-        System.out.println(userId);
-        System.out.println(productId);
-        //if(customerRepository.findRoleByCustomerIdAndProductId(userId, productId) == null){
-        //    throw new UnauthorizedException();
-        //}
+//        if(customerRepository.findRoleByCustomerIdAndProductId(userId, productId) == null){
+//            throw new UnauthorizedException();
+//        }
     }
 
 }

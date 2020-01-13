@@ -106,8 +106,9 @@ public class UserService {
     public Void userAllowed(Integer productId){
         Subject subject = SecurityUtils.getSubject();
         UserDto user = (UserDto) subject.getPrincipal();
-        if(!isUserAllowed(productId, user.getUserId()))
+        if(!isUserAllowed(productId, user.getUserId())) {
             throw new UnauthorizedException();
+        }
         return null;
     }
 

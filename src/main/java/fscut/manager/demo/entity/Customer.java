@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Table(name = "customer")
 public class Customer {
 
-    public interface SimpleView{};
+    public interface SimpleView{}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,7 @@ public class Customer {
     @Column(name = "realname", nullable = false)
     private String realName;
 
-    @Column(name = "product_id", nullable = true)
+    @Column(name = "product_id")
     private Integer productId;
 
     public Customer() {

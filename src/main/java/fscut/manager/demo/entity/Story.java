@@ -1,104 +1,93 @@
 package fscut.manager.demo.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 import fscut.manager.demo.entity.UPK.StoryUPK;
 import fscut.manager.demo.enums.StoryStatusEnum;
-
-import org.apache.lucene.analysis.charfilter.HTMLStripCharFilterFactory;
-import org.apache.lucene.analysis.core.StopFilterFactory;
-import org.apache.lucene.analysis.ngram.NGramTokenizerFactory;
 import org.hibernate.annotations.DynamicUpdate;
-//import org.hibernate.search.annotations.AnalyzerDef;
-//import org.hibernate.search.annotations.CharFilterDef;
-//import org.hibernate.search.annotations.TokenFilterDef;
-//import org.hibernate.search.annotations.TokenizerDef;
-////import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
-//import org.hibernate.search.annotations.*;
-//import org.hibernate.search.annotations.Indexed;
-//import org.hibernate.search.annotations.Parameter;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Date;
 
 @Entity
-//@Indexed(index = "story")
-//@AnalyzerDef(name = "customAnalyzer",
-//        tokenizer = @TokenizerDef(factory = NGramTokenizerFactory.class, params = {
-//                @org.hibernate.search.annotations.Parameter(name = "minGramSize", value = "1"),
-//                @Parameter(name = "maxGramSize", value = "40")
-//        }),
-//        filters = {
-//                @TokenFilterDef(factory = StopFilterFactory.class, params = {
-//                        @Parameter(name = "words", value = "org/apache/lucene/analysis/cn/smart/stopwords.txt"),
-//                        @Parameter(name = "ignoreCase", value = "true")
-//                })
-//        },
-//        charFilters = {
-//                @CharFilterDef(factory = HTMLStripCharFilterFactory.class)
-//        }
-//)
-//@Table(name = "story")
 @DynamicUpdate
 @JsonInclude(Include.NON_NULL)
 public class Story implements Serializable {
 
     private static final long serialVersionUID = -5246468425523820009L;
 
-    public interface StoryListSimpleView{}
+    public interface StorySimpleView {}
 
     @EmbeddedId
+    @JsonView(StorySimpleView.class)
     private StoryUPK storyUPK;
 
     @Column(name = "origin")
+    @JsonView(StorySimpleView.class)
     private String origin;
 
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonView(StorySimpleView.class)
     @Column(name = "put_time", nullable = false)
     private Date putTime;
 
     @Column(name = "story_name", nullable = false)
+    @JsonView(StorySimpleView.class)
     private String storyName;
 
     @Column(name = "story_status", nullable = false)
+    @JsonView(StorySimpleView.class)
     private Integer storyStatus = StoryStatusEnum.NEW.getCode();
 
     @Column(name = "description")
-    //@Field
+    @JsonView(StorySimpleView.class)
     private String description;
 
     @Column(name = "conclusion")
-    //@Field
+    @JsonView(StorySimpleView.class)
     private String conclusion;
 
     @Column(name = "design_id")
+    @JsonView(StorySimpleView.class)
     private Integer designId;
 
     @Column(name = "dev_id")
+    @JsonView(StorySimpleView.class)
     private Integer devId;
 
     @Column(name = "test_id")
+    @JsonView(StorySimpleView.class)
     private Integer testId;
 
     @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+    @JsonView(StorySimpleView.class)
     @Column(name = "test_time")
     private Date testTime;
 
     @Column(name = "edit_id", nullable = false)
+    @JsonView(StorySimpleView.class)
     private Integer editId;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @JsonView(StorySimpleView.class)
     @Column(name = "update_time", nullable = false)
     private java.util.Date updateTime;
+
+    @Column(name = "description_str")
+    private String descriptionStr;
+
+    @Column(name = "conclusion_str")
+    private String conclusionStr;
 
     public Story() {
         // do nothing because of constructor method
     }
 
-    @JsonView({Story.StoryListSimpleView.class})
+
     public StoryUPK getStoryUPK() {
         return storyUPK;
     }
@@ -115,16 +104,16 @@ public class Story implements Serializable {
         this.origin = origin;
     }
 
-    public  Date getPutTime() {
+
+    public Date getPutTime() {
         return putTime;
     }
 
-    @JsonView({Story.StoryListSimpleView.class})
     public void setPutTime(Date putTime) {
         this.putTime = putTime;
     }
 
-    @JsonView({Story.StoryListSimpleView.class})
+
     public String getStoryName() {
         return storyName;
     }
@@ -133,7 +122,7 @@ public class Story implements Serializable {
         this.storyName = storyName;
     }
 
-    @JsonView({Story.StoryListSimpleView.class})
+
     public Integer getStoryStatus() {
         return storyStatus;
     }
@@ -204,6 +193,22 @@ public class Story implements Serializable {
 
     public void setUpdateTime(java.util.Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getDescriptionStr() {
+        return descriptionStr;
+    }
+
+    public void setDescriptionStr(String descriptionStr) {
+        this.descriptionStr = descriptionStr;
+    }
+
+    public String getConclusionStr() {
+        return conclusionStr;
+    }
+
+    public void setConclusionStr(String conclusionStr) {
+        this.conclusionStr = conclusionStr;
     }
 
     @Override

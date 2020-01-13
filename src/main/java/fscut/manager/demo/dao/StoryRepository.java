@@ -1,6 +1,5 @@
 package fscut.manager.demo.dao;
 
-import fscut.manager.demo.entity.Customer;
 import fscut.manager.demo.entity.Story;
 import fscut.manager.demo.entity.UPK.StoryUPK;
 import org.springframework.data.domain.Page;
@@ -43,10 +42,20 @@ public interface StoryRepository extends JpaRepository<Story, StoryUPK> {
     @Query(value = "select * from story where product_id = :#{#storyUPK.productId} and story_id = :#{#storyUPK.storyId} order by edition desc ", nativeQuery = true)
     List<Story> findStoriesByStoryUPK(@Param("storyUPK") StoryUPK storyUPK);
 
+    /**
+     * 根据主键删除需求
+     * @param storyUPK 主键
+     * @return 删除条数
+     */
     @Modifying
     @Query(value = "delete from story where product_id = :#{#storyUPK.productId} and story_id = :#{#storyUPK.storyId}", nativeQuery = true)
     Integer deleteStories(@Param("storyUPK") StoryUPK storyUPK);
 
+    /**
+     * 通过主键查找需求
+     * @param storyUPK 主键
+     * @return 需求
+     */
     @Query(value = "select * from story where product_id = :#{#storyUPK.productId} and " +
             "story_id = :#{#storyUPK.storyId} and edition = :#{#storyUPK.edition}", nativeQuery = true)
     Story findStoryByEdition(@Param("storyUPK") StoryUPK storyUPK);
@@ -77,18 +86,18 @@ public interface StoryRepository extends JpaRepository<Story, StoryUPK> {
     Page<Story> findByStoryNameContainingAndDescriptionContaining(String storyName, String description, Pageable pageable);
 
     /**
-     *
-     * @param specification
-     * @param pageable
-     * @return
+     * 动态查询需求
+     * @param specification 动态查询
+     * @param pageable 分页
+     * @return 需求
      */
     Page<Story> findAll(Specification<Story> specification, Pageable pageable);
 
     /**
-     *
-     * @param storyUPKList
-     * @param pageable
-     * @return
+     * 根据主键列表查询需求
+     * @param storyUPKList 主键列表
+     * @param pageable 分页
+     * @return 分页需求
      */
     Page<Story> findByStoryUPKIn(List<StoryUPK> storyUPKList, Pageable pageable);
 

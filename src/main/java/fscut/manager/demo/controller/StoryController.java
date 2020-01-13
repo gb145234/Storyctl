@@ -8,12 +8,10 @@ import fscut.manager.demo.entity.Customer;
 import fscut.manager.demo.entity.Message;
 import fscut.manager.demo.entity.Story;
 import fscut.manager.demo.entity.UPK.StoryUPK;
-import fscut.manager.demo.service.CustomerService;
 import fscut.manager.demo.service.MessageService;
 import fscut.manager.demo.service.StoryService;
 import fscut.manager.demo.service.serviceimpl.UserService;
 import fscut.manager.demo.util.CsvUtils;
-import fscut.manager.demo.util.websocket.WebSocketServer;
 import fscut.manager.demo.vo.StoryDetailVO;
 import fscut.manager.demo.vo.StoryVO;
 import io.swagger.annotations.Api;
@@ -44,7 +42,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-
 @RestController
 @CrossOrigin
 @Api(value = "需求controller",tags = {"用户操作接口"})
@@ -59,17 +56,12 @@ public class StoryController {
     private UserService userService;
 
     @Resource
-    private CustomerService customerService;
-
-    @Resource
     private MessageService messageService;
-
-    @Resource
-    private WebSocketServer webSocketServer;
 
     @Resource
     private IpConfiguration ipConfiguration;
 
+    @JsonView(Story.StorySimpleView.class)
     @PostMapping("newStory")
     public ResponseEntity newStory(@RequestBody StoryVO storyVO){
         userService.userAllowed(storyVO.getStoryUPK().getProductId());
@@ -87,24 +79,12 @@ public class StoryController {
         }
 
         Message message = messageService.addCreateMessage(newStory);
-
-        Integer designId = newStory.getDesignId();
-        Integer devId = newStory.getDevId();
-        Integer testId = newStory.getTestId();
-
-        if (designId != null) {
-            webSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(designId));
-        }
-        if (devId != null) {
-            webSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(devId));
-        }
-        if (testId != null) {
-            webSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(testId));
-        }
+        messageService.sendMessage(newStory, message);
 
         return ResponseEntity.ok(newStory);
     }
 
+    @JsonView(Story.StorySimpleView.class)
     @PostMapping("editStory")
     public ResponseEntity editStory(@RequestBody StoryVO storyVO) {
         userService.userAllowed(storyVO.getStoryUPK().getProductId());
@@ -119,21 +99,8 @@ public class StoryController {
             return ResponseEntity.ok("为空！");
         }
 
-
         Message message = messageService.addUpdateMessage(updatedStory);
-
-        Integer designId = updatedStory.getDesignId();
-        Integer devId = updatedStory.getDevId();
-        Integer testId = updatedStory.getTestId();
-        if (designId != null) {
-            webSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(designId));
-        }
-        if (devId != null) {
-            webSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(devId));
-        }
-        if (testId != null) {
-            webSocketServer.sendInfo(message.getContent(), customerService.getUsernameById(testId));
-        }
+        messageService.sendMessage(updatedStory,message);
 
         return ResponseEntity.ok(updatedStory);
     }
@@ -161,6 +128,7 @@ public class StoryController {
         return ResponseEntity.ok(storyDetailVO);
     }
 
+    @JsonView(Story.StorySimpleView.class)
     @PostMapping("history")
     public ResponseEntity<List<Story>> showStoryHistory(@RequestBody StoryUPK storyUPK){
         userService.userAllowed(storyUPK.getProductId());
@@ -172,13 +140,14 @@ public class StoryController {
     @DeleteMapping("deleteStory")
     public ResponseEntity<Integer> deleteStory(@RequestBody StoryUPK storyUPK){
         userService.userAllowed(storyUPK.getProductId());
-
         Integer res = storyService.deleteStory(storyUPK);
         return ResponseEntity.ok(res);
     }
 
     @PostMapping("selectStory")
     public ResponseEntity<Page<Story>> selectStory(Integer productId, String startTime, String endTime, String origin, String userInput, Integer page, Integer size, String sortByPutTime) {
+        userService.userAllowed(productId);
+
         Sort.Direction sort = Sort.Direction.DESC;
         String desc = "descending";
         String asc = "ascending";
@@ -193,8 +162,11 @@ public class StoryController {
         return ResponseEntity.ok(stories);
     }
 
+    @JsonView({Story.StorySimpleView.class})
     @GetMapping("findStory")
     public ResponseEntity<List<Story>> findStoryById(Integer productId, Integer storyId) {
+        userService.userAllowed(productId);
+
         List<Story> storyList = storyService.getStoryByStoryId(productId, storyId);
         return ResponseEntity.ok(storyList);
     }
@@ -202,6 +174,7 @@ public class StoryController {
     @JsonView(Customer.SimpleView.class)
     @GetMapping("customerList")
     public ResponseEntity<CustomerListDTO> getCustomers(Integer productId) {
+        userService.userAllowed(productId);
 
         CustomerListDTO customerListDTO = storyService.getCustomers(productId);
 
@@ -222,7 +195,8 @@ public class StoryController {
         headers.add("ETag", String.valueOf(System.currentTimeMillis()));
 
         CsvUtils.download(storyService.getStoriesByProductId(productId, user.getUserId()), response);
-        File file = new File("D:\\writeCSV.csv");
+        String pathName = "D:\\writeCSV.csv";
+        File file = new File(pathName);
         return ResponseEntity.ok().headers(headers).contentLength(file.length()).
                 contentType(MediaType.parseMediaType("application/octet-stream")).
                 body(new FileSystemResource(file));

@@ -30,8 +30,15 @@ public interface MessageService {
     Integer readMessage(Integer messageId, Integer customerId);
 
     /**
+     * 发送消息给需求各负责人
+     * @param story
+     */
+    void sendMessage(Story story, Message message);
+
+    /**
      * 读取用户所有未读消息
      * @param customerId 用户id
+     * @return 读取条数
      */
     Integer readAll(Integer customerId);
 

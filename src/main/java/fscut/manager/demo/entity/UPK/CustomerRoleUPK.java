@@ -25,8 +25,12 @@ public class CustomerRoleUPK implements Serializable{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         CustomerRoleUPK that = (CustomerRoleUPK) o;
         return Objects.equals(customerId, that.customerId) &&
                 Objects.equals(roleId, that.roleId) &&
