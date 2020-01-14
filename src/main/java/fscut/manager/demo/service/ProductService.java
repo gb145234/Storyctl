@@ -23,5 +23,5 @@ public interface ProductService {
      * 删除产品
      * @param productId 产品id
      */
-    void deleteProduct(Integer productId);
+    Integer deleteProduct(Integer productId);
 }

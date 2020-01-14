@@ -38,8 +38,11 @@ public class ProductController {
 
 
     @DeleteMapping("delete")
-    public ResponseEntity delete(Integer productId) {
-        productService.deleteProduct(productId);
-        return ResponseEntity.ok("delete successfully");
+    public ResponseEntity<String> delete(Integer productId) {
+        Integer res = productService.deleteProduct(productId);
+        if (res == 1) {
+            return ResponseEntity.ok("delete successfully");
+        }
+        return ResponseEntity.ok("删除失败");
     }
 }

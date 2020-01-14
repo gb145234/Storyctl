@@ -42,6 +42,16 @@ public interface CustomerRoleRepository extends JpaRepository<CustomerRole, Cust
     Integer deleteRoleByCustomerId(Integer customerId);
 
     /**
+     * 删除某个产品的所有用户角色
+     * @param productId 产品id
+     * @return 删除条数
+     */
+    @Modifying
+    @Transactional(rollbackOn = Exception.class)
+    @Query(value = "delete from customer_role where product_id = ?1", nativeQuery = true)
+    Integer deleteByProductId(Integer productId);
+
+    /**
      * 查找所有管理员
      * @return 用户id列表
      */

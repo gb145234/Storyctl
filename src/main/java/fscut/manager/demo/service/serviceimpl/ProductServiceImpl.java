@@ -1,11 +1,13 @@
 package fscut.manager.demo.service.serviceimpl;
 
+import fscut.manager.demo.dao.CustomerRoleRepository;
 import fscut.manager.demo.dao.ProductRepository;
 import fscut.manager.demo.entity.Product;
 import fscut.manager.demo.service.ProductService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -13,6 +15,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Resource
     private ProductRepository productRepository;
+
+    @Resource
+    private CustomerRoleRepository customerRoleRepository;
 
     @Override
     public List<Product> showProductList(Integer customerId) {
@@ -28,7 +33,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void deleteProduct(Integer productId) {
-        productRepository.deleteById(productId);
+    @Transactional(rollbackOn = Exception.class)
+    public Integer deleteProduct(Integer productId) {
+        Integer res = productRepository.deleteByProductId(productId);
+        if (res == 1) {
+            customerRoleRepository.deleteByProductId(productId);
+        }
+        return res;
     }
 }

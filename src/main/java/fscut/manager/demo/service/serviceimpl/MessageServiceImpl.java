@@ -39,10 +39,19 @@ public class MessageServiceImpl implements MessageService {
         BeanUtils.copyProperties(story, message);
         message.setContent(content);
         message = messageRepository.save(message);
+        Integer designId = story.getDesignId();
+        Integer devId = story.getDevId();
+        Integer testId = story.getTestId();
         messageRepository.addCustomerMessage(message.getMessageId(), story.getEditId());
-        messageRepository.addCustomerMessage(message.getMessageId(), story.getDesignId());
-        messageRepository.addCustomerMessage(message.getMessageId(), story.getDevId());
-        messageRepository.addCustomerMessage(message.getMessageId(), story.getTestId());
+        if (designId != null) {
+            messageRepository.addCustomerMessage(message.getMessageId(), designId);
+        }
+        if (devId != null) {
+            messageRepository.addCustomerMessage(message.getMessageId(), devId);
+        }
+        if (testId != null) {
+            messageRepository.addCustomerMessage(message.getMessageId(), testId);
+        }
         return message;
     }
 
@@ -56,10 +65,19 @@ public class MessageServiceImpl implements MessageService {
         String content = String.format("%s %s %s 需求", customerRepository.findRealNameByCustomerId(story.getEditId()), "修改了", story.getStoryName());
         message.setContent(content);
         message = messageRepository.save(message);
+        Integer designId = story.getDesignId();
+        Integer devId = story.getDevId();
+        Integer testId = story.getTestId();
         messageRepository.addCustomerMessage(message.getMessageId(), story.getEditId());
-        messageRepository.addCustomerMessage(message.getMessageId(), story.getDesignId());
-        messageRepository.addCustomerMessage(message.getMessageId(), story.getDevId());
-        messageRepository.addCustomerMessage(message.getMessageId(), story.getTestId());
+        if (designId != null) {
+            messageRepository.addCustomerMessage(message.getMessageId(), designId);
+        }
+        if (devId != null) {
+            messageRepository.addCustomerMessage(message.getMessageId(), devId);
+        }
+        if (testId != null) {
+            messageRepository.addCustomerMessage(message.getMessageId(), story.getTestId());
+        }
         return message;
     }
 

@@ -203,7 +203,7 @@ public class StoryController {
     }
 
     @RequestMapping("/upload")
-    public ResponseEntity image(MultipartFile file){
+    public ResponseEntity image(MultipartFile file) {
         InetAddress address = null;
         try {
             address = InetAddress.getLocalHost();
