@@ -18,7 +18,7 @@ public interface CustomerRoleRepository extends JpaRepository<CustomerRole, Cust
      * @return 角色id
      */
     @Query(value = "select id from role where role_name = ?1", nativeQuery = true)
-    Integer getRoleIdByRoleName( String roleName);
+    Integer getRoleIdByRoleName(String roleName);
 
     /**
      * 根据用户id和产品id删除用户的产品

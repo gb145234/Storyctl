@@ -71,12 +71,20 @@ public interface CustomerRepository extends JpaRepository<Customer,Integer>{
     List<String> findRolesByCustomerId(Integer userId);
 
     /**
+     * 根据用户id查找权限
+     * @param userId 用户id
+     * @return 权限名
+     */
+    @Query(value = "select DISTINCT role_code from customer_role as cr left join role on cr.role_id = role.id where customer_id = ?1", nativeQuery = true)
+    String findRoleCodeByUserId(Integer userId);
+
+    /**
      * 根据用户id查找角色名
      * @param userId 用户id
      * @return 角色名
      */
-    @Query(value = "select DISTINCT role_code from customer_role as cr left join role on cr.role_id = role.id where customer_id = ?1", nativeQuery = true)
-    String findRoleCodeByUserId(Integer userId);
+    @Query(value = "select DISTINCT role_name from customer_role as cr left join role on cr.role_id = role.id where customer_id = ?1", nativeQuery = true)
+    String findRoleNameByUserId(Integer userId);
 
     /**
      * 根据用户名删除用户
@@ -114,5 +122,22 @@ public interface CustomerRepository extends JpaRepository<Customer,Integer>{
     @Query(value = "update customer set password = ?1 where id = ?2", nativeQuery = true)
     Integer updateCustomerPassword(String password, Integer customerId);
 
+    /**
+     * 修改用户昵称
+     * @param newName 新昵称
+     * @param customerId 用户id
+     * @return 修改条数
+     */
+    @Modifying
+    @Transactional(rollbackOn = Exception.class)
+    @Query(value = "update customer set realname = ?1 where id = ?2", nativeQuery = true)
+    Integer updateCustomerRealName(String newName, Integer customerId);
 
+    /**
+     * 查找用户密码
+     * @param customerId 用户id
+     * @return 用户密码
+     */
+    @Query(value = "select password from customer where id = ?1", nativeQuery = true)
+    String findPasswordByUserId(Integer customerId);
 }

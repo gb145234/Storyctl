@@ -144,7 +144,7 @@ public class StoryServiceImpl implements StoryService {
 
 
     private void getDifferenceBetween2Stories(Story newStory, Story lastStory) {
-        if (!compareString(newStory.getConclusion(), lastStory.getConclusion())) {
+        if (Boolean.FALSE.equals(compareString(newStory.getConclusion(), lastStory.getConclusion()))) {
             StoryDetail result = new StoryDetail();
             result.setProductId(newStory.getStoryUPK().getProductId());
             result.setStoryId(newStory.getStoryUPK().getStoryId());
@@ -155,7 +155,7 @@ public class StoryServiceImpl implements StoryService {
             result.setModified(newStory.getConclusion());
             storyDetailRepository.save(result);
         }
-        if (!compareString(newStory.getDescription(), lastStory.getDescription())) {
+        if (Boolean.FALSE.equals(compareString(newStory.getDescription(), lastStory.getDescription()))) {
             StoryDetail result = new StoryDetail();
             result.setProductId(newStory.getStoryUPK().getProductId());
             result.setStoryId(newStory.getStoryUPK().getStoryId());
@@ -166,7 +166,7 @@ public class StoryServiceImpl implements StoryService {
             result.setModified(newStory.getDescription());
             storyDetailRepository.save(result);
         }
-        if (!compareInteger(newStory.getDesignId(),lastStory.getDesignId())) {
+        if (Boolean.FALSE.equals(compareInteger(newStory.getDesignId(),lastStory.getDesignId()))) {
             StoryDetail result = new StoryDetail();
             result.setProductId(newStory.getStoryUPK().getProductId());
             result.setStoryId(newStory.getStoryUPK().getStoryId());
@@ -177,7 +177,7 @@ public class StoryServiceImpl implements StoryService {
             result.setModified(customerRepository.findRealNameByCustomerId(newStory.getDesignId()));
             storyDetailRepository.save(result);
         }
-        if (!compareInteger(newStory.getDevId(), lastStory.getDevId())) {
+        if (Boolean.FALSE.equals(compareInteger(newStory.getDevId(), lastStory.getDevId()))) {
             StoryDetail result = new StoryDetail();
             result.setProductId(newStory.getStoryUPK().getProductId());
             result.setStoryId(newStory.getStoryUPK().getStoryId());
@@ -188,7 +188,7 @@ public class StoryServiceImpl implements StoryService {
             result.setModified(customerRepository.findRealNameByCustomerId(newStory.getDevId()));
             storyDetailRepository.save(result);
         }
-        if (!compareInteger(newStory.getTestId(),lastStory.getTestId())) {
+        if (Boolean.FALSE.equals(compareInteger(newStory.getTestId(),lastStory.getTestId()))) {
             StoryDetail result = new StoryDetail();
             result.setProductId(newStory.getStoryUPK().getProductId());
             result.setStoryId(newStory.getStoryUPK().getStoryId());
@@ -221,7 +221,7 @@ public class StoryServiceImpl implements StoryService {
             result.setModified(newStory.getStoryName());
             storyDetailRepository.save(result);
         }
-        if (!newStory.getStoryStatus().equals(lastStory.getStoryStatus())) {
+        if (Boolean.FALSE.equals(newStory.getStoryStatus().equals(lastStory.getStoryStatus()))) {
             StoryDetail result = new StoryDetail();
             result.setProductId(newStory.getStoryUPK().getProductId());
             result.setStoryId(newStory.getStoryUPK().getStoryId());

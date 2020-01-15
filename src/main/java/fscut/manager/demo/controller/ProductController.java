@@ -1,10 +1,13 @@
 package fscut.manager.demo.controller;
 
 
+import fscut.manager.demo.dto.UserDto;
 import fscut.manager.demo.entity.Product;
 import fscut.manager.demo.service.CustomerService;
 import fscut.manager.demo.service.ProductService;
 import fscut.manager.demo.vo.CustomerAuthVO;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +36,13 @@ public class ProductController {
             customerAuthVO.setUsername(admin);
             customerService.addToProduct(customerAuthVO);
         }
+        Subject subject = SecurityUtils.getSubject();
+        UserDto user = (UserDto) subject.getPrincipal();
+        CustomerAuthVO customerAuthVO = new CustomerAuthVO();
+        customerAuthVO.setProductId(product.getId());
+        customerAuthVO.setRoleName(customerService.getRoleName(user.getUserId()));
+        customerAuthVO.setUsername(user.getUsername());
+        customerService.addToProduct(customerAuthVO);
         return ResponseEntity.ok(product);
     }
 

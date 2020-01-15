@@ -8,6 +8,7 @@ import fscut.manager.demo.vo.MessageVO;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("message")
-public class MessageController{
+public class MessageController {
 
      @Resource
      private MessageService messageService;
@@ -32,7 +33,7 @@ public class MessageController{
      }
 
      @GetMapping("getMessageList")
-     public ResponseEntity<List<MessageVO>> getMessageList(){
+     public ResponseEntity<List<MessageVO>> getMessageList() {
           Subject subject = SecurityUtils.getSubject();
           UserDto user = (UserDto) subject.getPrincipal();
           List<MessageVO> messageList = messageService.getMessage(user.getUserId());
@@ -42,28 +43,40 @@ public class MessageController{
      @GetMapping("readMessage")
      public ResponseEntity<Integer> readMessage(Integer messageId, String username) {
          Integer customerId = customerService.getIdByUsername(username);
-          Integer res = messageService.readMessage(messageId, customerId);
-          return ResponseEntity.ok(res);
+         Integer res = messageService.readMessage(messageId, customerId);
+         if (res != 1) {
+             return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+         }
+         return ResponseEntity.ok(res);
      }
 
      @GetMapping("readAll")
      public ResponseEntity<Integer> readAll(String username) {
-          Integer customerId = customerService.getIdByUsername(username);
-          Integer res = messageService.readAll(customerId);
+         Integer customerId = customerService.getIdByUsername(username);
+         Integer res = messageService.readAll(customerId);
+         if (res != 1) {
+             return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+         }
           return ResponseEntity.ok(res);
      }
 
      @DeleteMapping("deleteMessage")
      public ResponseEntity<Integer> deleteMessage(Integer messageId, String username) {
-          Integer customerId = customerService.getIdByUsername(username);
-          Integer res = messageService.deleteMessage(messageId, customerId);
+         Integer customerId = customerService.getIdByUsername(username);
+         Integer res = messageService.deleteMessage(messageId, customerId);
+         if (res != 1) {
+             return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+         }
           return ResponseEntity.ok(res);
      }
 
      @DeleteMapping("deleteAll")
      public ResponseEntity<Integer> deleteMessage(String username) {
-          Integer customerId = customerService.getIdByUsername(username);
-          Integer res = messageService.deleteAll(customerId);
+         Integer customerId = customerService.getIdByUsername(username);
+         Integer res = messageService.deleteAll(customerId);
+         if (res != 1) {
+             return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+         }
           return ResponseEntity.ok(res);
      }
 

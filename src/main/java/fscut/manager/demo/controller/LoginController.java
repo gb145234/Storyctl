@@ -21,7 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Api(value = "首页接口", tags = {"首页接口"})
 @RestController
@@ -40,7 +42,7 @@ public class LoginController {
 
     @ApiOperation(value = "用户登录",notes = "用户登录返回头里含有token")
     @PostMapping(value = "/login")
-    public ResponseEntity<String> login(@RequestBody UserDto loginInfo, HttpServletResponse response) {
+    public ResponseEntity<Map> login(@RequestBody UserDto loginInfo, HttpServletResponse response) {
         Subject subject = SecurityUtils.getSubject();
         try {
             UsernamePasswordToken token = new UsernamePasswordToken(loginInfo.getUsername(), loginInfo.getPassword());
@@ -52,7 +54,11 @@ public class LoginController {
 
             Integer userId = customerService.getIdByUsername(user.getUsername());
             String roleCode = customerService.getRoleCodeByUserId(userId);
-            return ResponseEntity.ok(roleCode);
+            String realName = customerService.getRealnameById(userId);
+            Map<String, String> map = new HashMap<>();
+            map.put("roleCode", roleCode);
+            map.put("realName", realName);
+            return ResponseEntity.ok(map);
         } catch (AuthenticationException e) {
             logger.error("User {} login fail, Reason:{}", loginInfo.getUsername(), e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();

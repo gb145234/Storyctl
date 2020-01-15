@@ -56,7 +56,7 @@ public class CustomerController {
     @PostMapping("addToProduct")
     @RequiresRoles(value={"admin","manager"}, logical = Logical.OR)
     public ResponseEntity addToProduct(@RequestBody CustomerAuthVO customerAuthVO) {
-        CustomerRoleUPK customerRoleUPK = customerService.getCustomerRoleByCusomerIdAndProductId(customerAuthVO);
+        CustomerRoleUPK customerRoleUPK = customerService.getCustomerRoleByCustomerIdAndProductId(customerAuthVO);
         if (customerRoleUPK == null) {
             CustomerRole customerRole1 = customerService.addToProduct(customerAuthVO);
             return ResponseEntity.ok(customerRole1);
@@ -89,14 +89,27 @@ public class CustomerController {
         return ResponseEntity.ok(customer);
     }
 
-    @PostMapping("updateCustomer")
-    @RequiresRoles("admin")
-    public ResponseEntity<Integer> updateCustomer(String password, String username) {
-        Integer res = customerService.updateCustomer(password, username);
+    @PostMapping("updatePassword")
+    public ResponseEntity<String> updatePassword(String oldPassword, String newPassword, String username) {
+        Integer res = customerService.updateCustomerPassword(oldPassword, newPassword, username);
+        if (res == -2) {
+            return new ResponseEntity<>("原密码不能为空！", HttpStatus.BAD_REQUEST);
+        }
+        if (res == -1) {
+            return new ResponseEntity<>("与原密码不相符！", HttpStatus.BAD_REQUEST);
+        }
+        if (res == 0) {
+            return new ResponseEntity<>("修改失败！", HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok("修改成功");
+    }
+
+    @PostMapping("updateRealName")
+    public ResponseEntity<Integer> updateRealName(String newName, String username) {
+        Integer res = customerService.updateCustomerRealName(newName, username);
         if (res != 1) {
             return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
         }
         return ResponseEntity.ok(res);
     }
-
 }

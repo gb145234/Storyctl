@@ -44,18 +44,6 @@ public interface CustomerService {
     Integer deleteCustomer(String username) throws CustomerNotExitsException;
 
     /**
-     * 授予角色
-     * @param customerRole 用户角色
-     */
-    void assignRole(CustomerRole customerRole);
-
-    /**
-     * 删除角色
-     * @param customerRole 用户角色
-     */
-    void deleteRole(CustomerRole customerRole);
-
-    /**
      * 根据用户id得到用户名
      * @param userId 用户Id
      * @return 用户名
@@ -99,11 +87,20 @@ public interface CustomerService {
 
     /**
      * 修改密码
-     * @param password 密码
+     * @param oldPassword 旧密码
+     * @param newPassword 新密码
      * @param username 用户名
-     * @return 更新条数
+     * @return 更新结果
      */
-    Integer updateCustomer(String password, String username);
+    Integer updateCustomerPassword(String oldPassword, String newPassword, String username);
+
+    /**
+     * 修改昵称
+     * @param newName 新昵称
+     * @param username 用户名
+     * @return 修改条数
+     */
+    Integer updateCustomerRealName(String newName, String username);
 
     /**
      * 得到管理员列表
@@ -123,5 +120,12 @@ public interface CustomerService {
      * @param customerAuthVO 用户视图
      * @return 用户角色主键
      */
-    CustomerRoleUPK getCustomerRoleByCusomerIdAndProductId(CustomerAuthVO customerAuthVO);
+    CustomerRoleUPK getCustomerRoleByCustomerIdAndProductId(CustomerAuthVO customerAuthVO);
+
+    /**
+     * 根据角色id得到角色名
+     * @param userId 角色id
+     * @return 角色名
+     */
+    String getRoleName(Integer userId);
 }

@@ -8,10 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.springframework.beans.BeanUtils;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -131,8 +127,7 @@ public class CsvUtils {
         if (date == null) {
             return "/";
         }
-        String s = String.valueOf(date);
-        return s;
+        return String.valueOf(date);
     }
 
 

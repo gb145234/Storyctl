@@ -61,16 +61,6 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void deleteRole(CustomerRole customerRole){
-        customerRoleRepository.delete(customerRole);
-    }
-
-    @Override
-    public void assignRole(CustomerRole customerRole){
-        customerRoleRepository.save(customerRole);
-    }
-
-    @Override
     public String getUsernameById(Integer userId) {
         if(userId == null){
             return null;
@@ -114,9 +104,25 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Integer updateCustomer(String password, String username) {
+    public Integer updateCustomerPassword(String oldPassword, String newPassword, String username) {
         Integer userId = customerRepository.getIdByUsername(username);
-        return customerRepository.updateCustomerPassword(password, userId);
+        Integer res;
+        if (oldPassword == null) {
+            res = -2;
+            return res;
+        }
+        String password = customerRepository.findPasswordByUserId(userId);
+        if (!oldPassword.equals(password)) {
+            res = -1;
+            return res;
+        }
+        return customerRepository.updateCustomerPassword(newPassword, userId);
+    }
+
+    @Override
+    public Integer updateCustomerRealName(String newName, String username) {
+        Integer userId = customerRepository.getIdByUsername(username);
+        return customerRepository.updateCustomerRealName(newName, userId);
     }
 
     @Override
@@ -138,10 +144,15 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerRoleUPK getCustomerRoleByCusomerIdAndProductId(CustomerAuthVO customerAuthVO) {
+    public CustomerRoleUPK getCustomerRoleByCustomerIdAndProductId(CustomerAuthVO customerAuthVO) {
         Integer productId = customerAuthVO.getProductId();
         Integer customerId = customerRepository.getIdByUsername(customerAuthVO.getUsername());
         return customerRoleRepository.findByCustomerIdAndProductId(customerId, productId);
+    }
+
+    @Override
+    public String getRoleName(Integer userId) {
+        return customerRepository.findRoleNameByUserId(userId);
     }
 
 }

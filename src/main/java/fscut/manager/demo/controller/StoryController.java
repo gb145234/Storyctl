@@ -141,6 +141,9 @@ public class StoryController {
     public ResponseEntity<Integer> deleteStory(@RequestBody StoryUPK storyUPK){
         userService.userAllowed(storyUPK.getProductId());
         Integer res = storyService.deleteStory(storyUPK);
+        if (res != 1) {
+            return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+        }
         return ResponseEntity.ok(res);
     }
 
@@ -210,7 +213,7 @@ public class StoryController {
         } catch (UnknownHostException e) {
             log.info(e.getMessage());
         }
-        if (file.isEmpty()){
+        if (file.isEmpty()) {
             return new ResponseEntity<>("文件不可为空", HttpStatus.BAD_REQUEST);
         }
         String filaName = file.getOriginalFilename();
